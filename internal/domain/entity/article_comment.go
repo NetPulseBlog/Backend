@@ -1,18 +1,22 @@
 package entity
 
-import "time"
-
-/*
-TODO: add struct tags
-*/
+import (
+	"github.com/google/uuid"
+	"time"
+)
 
 type ArticleComment struct {
-	Id        int
-	UserId    int
-	ArticleId int
-	ReplyId   int
+	Id             uuid.UUID `json:"id"`
+	ArticleId      uuid.UUID `json:"articleId"`
+	ReplyCommentId uuid.UUID `json:"replyCommentId"`
 
-	CreatedAt time.Time
+	AuthorId uuid.UUID `json:"authorId"`
 
-	Content string
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+
+	Content string `json:"content"`
+
+	IsEdited  bool `json:"isEdited"`
+	IsRemoved bool `json:"isRemoved"`
 }
