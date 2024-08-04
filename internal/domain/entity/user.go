@@ -5,19 +5,22 @@ import (
 )
 
 type User struct {
-	Id                int
-	Email             string
-	EncryptedPassword string
+	Id                int    `json:"id"`
+	Email             string `json:"email"`
+	EncryptedPassword string `json:"encryptedPassword"`
 
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 
-	AvatarUrl string
-	Name      string
-	About     string
+	AvatarUrl string `json:"avatarUrl"`
+	Name      string `json:"name"`
+	About     string `json:"about"`
 
-	Subscribers   int // get from virtual table based on user_subscription
-	Subscriptions int // get from virtual table based on user_subscription
+	/*
+	 * Get Subscribers and Subscriptions from virtual table based on user_subscription
+	 */
+	SubscribersCount   int `json:"subscribersCount"`
+	SubscriptionsCount int `json:"subscriptionsCount"`
 
-	Settings UserSettings
+	Settings UserSettings `json:"userSettings"`
 }

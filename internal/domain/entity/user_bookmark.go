@@ -1,5 +1,5 @@
 package entity
 
-type UserArticleBookmark struct {
+type UserBookmark struct {
 	// type -> article/comment
 }
