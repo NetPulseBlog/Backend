@@ -6,7 +6,7 @@ import (
 )
 
 type IExampleRepo interface {
-	Create()
+	Create(name string)
 	Update()
 	Delete()
 	GetList()

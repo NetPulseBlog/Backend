@@ -14,7 +14,7 @@ func NewExampleRepo(db *sql.DB) *ExampleRepo {
 	}
 }
 
-func (receiver ExampleRepo) Create() {
+func (receiver ExampleRepo) Create(name string) {
 	panic("IMPLEMENT ME...")
 }
 

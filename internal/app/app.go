@@ -3,7 +3,9 @@ package app
 import (
 	"app/internal/config"
 	"app/internal/repository"
+	"app/internal/service"
 	"app/internal/transport/http"
+	"app/internal/transport/http/handler"
 	"app/pkg/database/postgresql"
 	"app/pkg/logger/handlers/slogpretty"
 	"app/pkg/logger/sl"
@@ -32,14 +34,20 @@ func (app *App) New() {
 	// Repos
 	repository := repository.NewRepositories(sqlStorage)
 
-	// HTTP Server
-	httpTransport := http.Transport{
-		Log: app.Log,
-		Cfg: app.Cfg,
+	// Services
+	services := service.NewServices(service.Deps{
+		Repos: repository,
+	})
 
-		Repository: repository,
-	}
-	httpTransport.New()
+	// HTTP Handlers
+	handlers := handler.NewTransportHandlers(log, services)
+
+	// HTTP Server
+	http.NewTransportServer(
+		log,
+		cfg,
+		handlers,
+	)
 }
 
 func setupLogger(env string) *slog.Logger {
