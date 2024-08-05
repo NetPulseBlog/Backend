@@ -17,6 +17,5 @@ type ArticleComment struct {
 
 	Content string `json:"content"`
 
-	IsEdited  bool `json:"is_edited"`
-	IsRemoved bool `json:"is_removed"`
+	IsEdited bool `json:"is_edited"`
 }

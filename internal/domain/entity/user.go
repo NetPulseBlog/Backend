@@ -5,10 +5,18 @@ import (
 	"time"
 )
 
+type UserAccountType string
+
+const (
+	UserAccountTypePersonal    UserAccountType = "personal"
+	UserAccountTypeSystemTopic UserAccountType = "system_topic"
+)
+
 type User struct {
-	Id                uuid.UUID `json:"id"`
-	Email             string    `json:"email"`
-	EncryptedPassword string    `json:"encrypted_password"`
+	Id                uuid.UUID       `json:"id"`
+	Email             string          `json:"email"`
+	EncryptedPassword string          `json:"encrypted_password"`
+	AccountType       UserAccountType `json:"account_type"`
 
 	// TODO: Hash, ConfirmCode, Role, Phone
 

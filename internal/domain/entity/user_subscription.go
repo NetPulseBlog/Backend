@@ -1,14 +1,12 @@
 package entity
 
-import "github.com/google/uuid"
-
-const (
-	SubsResTypeUser     = "subs_res_type_user"
-	SubsResTypeCategory = "subs_res_type_category"
+import (
+	"github.com/google/uuid"
+	"time"
 )
 
 type UserSubscription struct {
-	SubscriberId uuid.UUID `json:"subscriber_id"`
-	ResourceId   uuid.UUID `json:"resource_id"`
-	ResourceType uuid.UUID `json:"resource_type"`
+	SubscriberId     uuid.UUID `json:"subscriber_id"`
+	SubscribedUserId uuid.UUID `json:"subscribed_user_id"`
+	CreatedAt        time.Time `json:"created_at"`
 }

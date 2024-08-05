@@ -5,21 +5,28 @@ import (
 	"time"
 )
 
+type ArticleStatus string
+
+const (
+	ArticlePublishedStatus ArticleStatus = "published"
+	ArticleDraftStatus     ArticleStatus = "draft"
+)
+
 type Article struct {
 	Id       uuid.UUID `json:"id"`
 	AuthorId uuid.UUID `json:"author_id"`
 
-	IsPublished bool `json:"is_published"`
-
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 
-	Title    string          `json:"title"`
-	Category ArticleCategory `json:"category,omitempty"`
+	Status ArticleStatus `json:"status"`
 
-	Content  string `json:"content"`
-	CoverUrl string `json:"cover_url"`
-	SubTitle string `json:"sub_title"`
+	Title   string    `json:"title"`
+	TopicId uuid.UUID `json:"topic_id,omitempty"`
+
+	ContentBlocks string `json:"content_blocks"`
+	CoverUrl      string `json:"cover_url"`
+	SubTitle      string `json:"sub_title"`
 
 	ViewsCount    int `json:"views_count"`
 	CommentsCount int `json:"comments_count"`

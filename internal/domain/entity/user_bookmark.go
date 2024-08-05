@@ -5,9 +5,11 @@ import (
 	"time"
 )
 
+type BookmarkResourceType string
+
 const (
-	BTArticle = "bt_article"
-	BTComment = "bt_comment"
+	BTArticle BookmarkResourceType = "bt_article"
+	BTComment BookmarkResourceType = "bt_comment"
 )
 
 type UserBookmark struct {
@@ -15,6 +17,6 @@ type UserBookmark struct {
 
 	CreatedAt time.Time `json:"created_at"`
 
-	ResourceType int       `json:"resource_type"`
-	ResourceId   uuid.UUID `json:"resource_id"`
+	ResourceType BookmarkResourceType `json:"resource_type"`
+	ResourceId   uuid.UUID            `json:"resource_id"`
 }
