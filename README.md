@@ -1,4 +1,4 @@
-# Go Rest Api Template
+# Blog Customer Backend
 
 # App
 To launch the application do the following
