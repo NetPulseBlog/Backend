@@ -1,18 +1,21 @@
 package entity
 
+import "github.com/google/uuid"
+
 // NewsLineDefault
 const (
-	NWDPopular = iota + 1
-	NWDFresh
+	NWDPopular = "nld_popular"
+	NWDFresh   = "nld_fresh"
 )
 
 // NewsLineSort
 const (
-	NWSByPopular = iota + 1
-	NWSByDate
+	NWSByPopular = "nls_by_popular"
+	NWSByDate    = "nls_by_date"
 )
 
 type UserSettings struct {
-	NewsLineDefault string `json:"newsLineDefault"`
-	NewsLineSort    string `json:"newsLineSort"`
+	UserId          uuid.UUID `json:"user_id"`
+	NewsLineDefault string    `json:"news_line_default"`
+	NewsLineSort    string    `json:"news_line_sort"`
 }

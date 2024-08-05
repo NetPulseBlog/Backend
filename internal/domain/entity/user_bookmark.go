@@ -6,15 +6,15 @@ import (
 )
 
 const (
-	BookmarkTypeArticle = iota + 1
-	BookmarkTypeComment = iota + 1
+	BTArticle = "bt_article"
+	BTComment = "bt_comment"
 )
 
 type UserBookmark struct {
-	UserId uuid.UUID `json:"userId"`
+	UserId uuid.UUID `json:"user_id"`
 
-	CreatedAt time.Time `json:"createdAt"`
+	CreatedAt time.Time `json:"created_at"`
 
-	ResourceType int       `json:"resourceType"`
-	ResourceId   uuid.UUID `json:"resourceId"`
+	ResourceType int       `json:"resource_type"`
+	ResourceId   uuid.UUID `json:"resource_id"`
 }

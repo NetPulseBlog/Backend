@@ -2,14 +2,13 @@ package entity
 
 import "github.com/google/uuid"
 
-// ResourceType
 const (
-	RTUser = iota + 1
-	RTCategory
+	SubsResTypeUser     = "subs_res_type_user"
+	SubsResTypeCategory = "subs_res_type_category"
 )
 
 type UserSubscription struct {
-	SubscriberId uuid.UUID `json:"subscriberId"`
-	ResourceId   uuid.UUID `json:"subscribeId"`
-	ResourceType uuid.UUID `json:"resourceType"`
+	SubscriberId uuid.UUID `json:"subscriber_id"`
+	ResourceId   uuid.UUID `json:"resource_id"`
+	ResourceType uuid.UUID `json:"resource_type"`
 }

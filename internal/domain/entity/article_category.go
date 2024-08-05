@@ -7,6 +7,6 @@ type ArticleCategory struct {
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 
-	AvatarUrl string `json:"avatarUrl"`
-	CoverUrl  string `json:"coverUrl"`
+	AvatarUrl string `json:"avatar_url,omitempty"`
+	CoverUrl  string `json:"cover_url,omitempty"`
 }

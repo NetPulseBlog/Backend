@@ -7,18 +7,21 @@ import (
 
 type Article struct {
 	Id       uuid.UUID `json:"id"`
-	AuthorId uuid.UUID `json:"authorId"`
+	AuthorId uuid.UUID `json:"author_id"`
 
-	IsPublished bool `json:"isPublished"`
+	IsPublished bool `json:"is_published"`
 
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 
 	Title    string          `json:"title"`
 	Category ArticleCategory `json:"category,omitempty"`
-	Content  string          `json:"content"` // todo think about blocks
 
-	ViewsCount    int `json:"viewsCount"`
-	CommentsCount int `json:"commentsCount"`
-	BookmarkCount int `json:"bookmarkCount"`
+	Content  string `json:"content"`
+	CoverUrl string `json:"cover_url"`
+	SubTitle string `json:"sub_title"`
+
+	ViewsCount    int `json:"views_count"`
+	CommentsCount int `json:"comments_count"`
+	BookmarkCount int `json:"bookmark_count"`
 }

@@ -8,21 +8,23 @@ import (
 type User struct {
 	Id                uuid.UUID `json:"id"`
 	Email             string    `json:"email"`
-	EncryptedPassword string    `json:"encryptedPassword"`
+	EncryptedPassword string    `json:"encrypted_password"`
 
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	// TODO: Hash, ConfirmCode, Role, Phone
 
-	AvatarUrl string `json:"avatarUrl"`
-	CoverUrl  string `json:"coverUrl"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+
+	AvatarUrl string `json:"avatar_url"`
+	CoverUrl  string `json:"cover_url"`
 
 	Name        string `json:"name"`
 	Description string `json:"description"`
 
-	SubscribersCount   int `json:"subscribersCount"`
-	SubscriptionsCount int `json:"subscriptionsCount"`
+	SubscribersCount   int `json:"subscribers_count"`
+	SubscriptionsCount int `json:"subscriptions_count"`
 
-	Settings UserSettings `json:"userSettings"`
+	Settings UserSettings `json:"user_settings"`
 }
 
 //// Validate ...
