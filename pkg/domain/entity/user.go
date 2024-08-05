@@ -6,10 +6,17 @@ import (
 )
 
 type UserAccountType string
+type UserRole string
 
 const (
 	UserAccountTypePersonal    UserAccountType = "personal"
 	UserAccountTypeSystemTopic UserAccountType = "system_topic"
+)
+
+const (
+	UserRoleCustomer  UserRole = "customer"
+	UserRoleAdmin     UserRole = "administrator"
+	UserRoleModerator UserRole = "moderator"
 )
 
 type User struct {

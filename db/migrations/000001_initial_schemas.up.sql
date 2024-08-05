@@ -1,4 +1,5 @@
 CREATE TYPE user_account_type_enum as ENUM ('personal', 'system_topic');
+CREATE TYPE user_role_enum as ENUM ('customer', 'administrator', 'moderator');
 
 CREATE TABLE "user"
 (
@@ -8,7 +9,8 @@ CREATE TABLE "user"
     "created_at"         TIMESTAMP              NOT NULL DEFAULT now(),
     "updated_at"         TIMESTAMP                       DEFAULT now(),
 
-    "type"               user_account_type_enum NOT NULL DEFAULT 'personal',
+    "account_type"       user_account_type_enum NOT NULL DEFAULT 'personal',
+    "role"               user_role_enum         NOT NULL DEFAULT 'customer',
     "email"              character varying,
     "name"               character varying               DEFAULT null,
     "description"        character varying               DEFAULT null,
