@@ -1,14 +1,14 @@
 package service
 
 import (
-	"app/internal/repository"
+	"app/internal/repository/repos"
 )
 
 type Example struct {
-	exampleRepo repository.IExampleRepo
+	exampleRepo repos.IExampleRepo
 }
 
-func NewExampleService(exampleRepo repository.IExampleRepo) *Example {
+func NewExampleService(exampleRepo repos.IExampleRepo) *Example {
 	return &Example{exampleRepo: exampleRepo}
 }
 

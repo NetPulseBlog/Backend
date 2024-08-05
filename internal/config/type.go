@@ -8,7 +8,7 @@ const (
 	EnvProd  = "production"
 )
 
-// Config Required type for MustLoad function
+// Config Required repos for MustLoad function
 type Config struct {
 	Env        string `yaml:"env" env-default:"local"`
 	HTTPServer `yaml:"http_server"`
@@ -21,7 +21,7 @@ type Postgres struct {
 	DBName   string `yaml:"db" env-required:"true"`
 	User     string `yaml:"user" env-required:"true"`
 	Password string `yaml:"password" env-required:"true"`
-	SSLMode  string `yaml:"ssl_mode" env-default="disable"`
+	SSLMode  string `yaml:"ssl_mode" env-default:"disable"`
 }
 
 type HTTPServer struct {

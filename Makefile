@@ -8,11 +8,10 @@ build-migrator-up:
 	go build  -o ./bin/migrator/up ./cmd/migrator/up/main.go
 
 # Run commands
-run-app-local:
-	docker-compose -f docker-compose.local.yml up &
+run-local:
 	CONFIG_PATH=./config/local.yaml ./bin/app
 
-run-app-prod:
+run-prod:
 	CONFIG_PATH=./config/prod.yaml ./bin/app
 
 run-migrate-up-local:

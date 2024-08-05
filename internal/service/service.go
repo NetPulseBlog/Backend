@@ -1,9 +1,11 @@
 package service
 
-import "app/internal/repository"
+import (
+	"app/internal/repository/repos"
+)
 
 type Deps struct {
-	Repos *repository.Repositories
+	Repos *repos.Repositories
 }
 
 type Services struct {
