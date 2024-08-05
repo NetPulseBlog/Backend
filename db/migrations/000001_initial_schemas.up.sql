@@ -8,7 +8,7 @@ CREATE TABLE "user"
     "created_at"         TIMESTAMP              NOT NULL DEFAULT now(),
     "updated_at"         TIMESTAMP                       DEFAULT now(),
 
-    "type"               user_account_type_enum NOT NULL DEFAULT 'account',
+    "type"               user_account_type_enum NOT NULL DEFAULT 'personal',
     "email"              character varying,
     "name"               character varying               DEFAULT null,
     "description"        character varying               DEFAULT null,
