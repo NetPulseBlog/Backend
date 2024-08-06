@@ -1,5 +1,5 @@
-CREATE TYPE user_account_type_enum as ENUM ('personal', 'system_topic');
-CREATE TYPE user_role_enum as ENUM ('customer', 'administrator', 'moderator');
+CREATE TYPE user_account_type_enum as ENUM ('personal', 'system_sub_site');
+CREATE TYPE user_role_enum as ENUM ('customer', 'sub_site', 'administrator', 'moderator');
 
 CREATE TABLE "user"
 (
@@ -84,7 +84,7 @@ CREATE TABLE "article"
     "updated_at"   TIMESTAMP                              DEFAULT now(),
 
     title          character varying NOT NULL,
-    topic_id       uuid,
+    sub_site_id    uuid,
 
     content_blocks jsonb             NOT NULL             DEFAULT '{}',
     cover_url      character varying,
@@ -93,7 +93,7 @@ CREATE TABLE "article"
     views_count    int               NOT NULL             DEFAULT 0,
 
     FOREIGN KEY ("author_id") REFERENCES "user" ("id") ON DELETE CASCADE,
-    FOREIGN KEY ("topic_id") REFERENCES "user" ("id") ON DELETE CASCADE
+    FOREIGN KEY ("sub_site_id") REFERENCES "user" ("id") ON DELETE CASCADE
 );
 
 CREATE TABLE "article_comment"

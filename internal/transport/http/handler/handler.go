@@ -30,11 +30,11 @@ func NewTransportHandler(log *slog.Logger, services *service.Services) http.Hand
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
-	// Routes
-
 	// Api v1
 	handlerV1 := v1.NewHandler(handler.log, handler.services)
-	router.Mount("/api/v1", handlerV1.InitRouter())
+	router.Route("/api", func(r chi.Router) {
+		r.Mount("/v1", handlerV1.InitRouter())
+	})
 
 	return router
 }

@@ -21,8 +21,8 @@ type Article struct {
 
 	Status ArticleStatus `json:"status"`
 
-	Title   string    `json:"title"`
-	TopicId uuid.UUID `json:"topic_id,omitempty"`
+	Title      string    `json:"title"`
+	SubsSiteId uuid.UUID `json:"subs_site_id,omitempty"`
 
 	ContentBlocks string `json:"content_blocks"`
 	CoverUrl      string `json:"cover_url"`
