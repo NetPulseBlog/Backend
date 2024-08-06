@@ -2,6 +2,7 @@ package handler
 
 import (
 	"app/internal/service"
+	v1 "app/internal/transport/http/handler/v1"
 	"app/pkg/infra/http-server/middleware/logger"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -9,13 +10,13 @@ import (
 	"net/http"
 )
 
-type Handlers struct {
+type Handler struct {
 	log      *slog.Logger
 	services *service.Services
 }
 
-func NewTransportHandlers(log *slog.Logger, services *service.Services) http.Handler {
-	handlers := Handlers{
+func NewTransportHandler(log *slog.Logger, services *service.Services) http.Handler {
+	handler := Handler{
 		log:      log,
 		services: services,
 	}
@@ -25,12 +26,15 @@ func NewTransportHandlers(log *slog.Logger, services *service.Services) http.Han
 	// Middlewares
 	router.Use(middleware.RequestID)
 	router.Use(middleware.Logger)
-	router.Use(logger.New(handlers.log))
+	router.Use(logger.New(handler.log))
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
-	/*Routes*/
-	router.Get("/", handlers.exampleHandler(handlers.log, handlers.services.Example))
+	// Api v1
+	handlerV1 := v1.NewHandler(handler.log, handler.services)
+	router.Route("/api", func(r chi.Router) {
+		r.Mount("/v1", handlerV1.InitRouter())
+	})
 
 	return router
 }

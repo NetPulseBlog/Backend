@@ -22,6 +22,8 @@ func (app *App) New() {
 	cfg := config.MustLoad()
 	log := setupLogger(cfg.Env)
 
+	app.Cfg = cfg
+
 	log.Info("Starting application", slog.String("env", cfg.Env))
 
 	// Dependencies
@@ -32,15 +34,15 @@ func (app *App) New() {
 	}
 
 	// Repos
-	repository := repository.NewRepositories(sqlStorage)
+	repositories := repository.NewRepositories(sqlStorage)
 
 	// Services
 	services := service.NewServices(service.Deps{
-		Repos: repository,
+		Repos: repositories,
 	})
 
-	// HTTP Handlers
-	handlers := handler.NewTransportHandlers(log, services)
+	// HTTP Handler
+	handlers := handler.NewTransportHandler(log, services)
 
 	// HTTP Server
 	http.NewTransportServer(
@@ -62,8 +64,8 @@ func setupLogger(env string) *slog.Logger {
 				},
 			}
 
-			handler := opts.NewPrettyHandler(os.Stdout)
-			log = slog.New(handler)
+			loggerHandler := opts.NewPrettyHandler(os.Stdout)
+			log = slog.New(loggerHandler)
 		}
 
 	case config.EnvDev:

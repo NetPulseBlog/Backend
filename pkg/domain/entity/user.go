@@ -10,7 +10,7 @@ type UserRole string
 
 const (
 	UserAccountTypePersonal    UserAccountType = "personal"
-	UserAccountTypeSystemTopic UserAccountType = "system_topic"
+	UserAccountTypeSystemTopic UserAccountType = "system_sub_site"
 )
 
 const (
