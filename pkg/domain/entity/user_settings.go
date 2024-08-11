@@ -5,15 +5,15 @@ import "github.com/google/uuid"
 type NewsLineDefaultType string
 
 const (
-	NWDPopular NewsLineDefaultType = "nld_popular"
-	NWDFresh   NewsLineDefaultType = "nld_fresh"
+	NLDPopular NewsLineDefaultType = "nld_popular"
+	NLDFresh   NewsLineDefaultType = "nld_fresh"
 )
 
 type NewsLineSortType string
 
 const (
-	NWSByPopular NewsLineSortType = "nls_by_popular"
-	NWSByDate    NewsLineSortType = "nls_by_date"
+	NLSByPopular NewsLineSortType = "nls_by_popular"
+	NLSByDate    NewsLineSortType = "nls_by_date"
 )
 
 type UserSettings struct {

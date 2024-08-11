@@ -9,13 +9,16 @@ type Deps struct {
 }
 
 type Services struct {
-	Example Example
+	User User
+	Auth Auth
 }
 
 func NewServices(deps Deps) *Services {
-	exampleService := NewExampleService(deps.Repos.Example)
+	userService := NewUserService(deps.Repos.User)
+	authService := NewAuthService(deps.Repos.Auth)
 
 	return &Services{
-		Example: *exampleService,
+		User: *userService,
+		Auth: *authService,
 	}
 }

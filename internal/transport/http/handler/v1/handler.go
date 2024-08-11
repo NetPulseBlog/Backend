@@ -26,17 +26,14 @@ func (h *Handler) InitRouter() http.Handler {
 		//TODO: ADD AUTH MIDDLEWARE WHERE IT NEED .WITH(AUTH_MIDDLEWARE)
 
 		r.Route("/auth", func(r chi.Router) {
-			r.Post("/register", h.UserAuthRegister)
-			r.Post("/login", h.UserAuthLogin)
+			r.Post("/sign-up", h.UserSignUp)
+			r.Post("/sign-in", h.UserSignIn)
 			r.Route("/token", func(r chi.Router) {
 				r.Post("/refresh", h.UserAuthTokenRefresh)
 			})
 		})
-		r.Route("/settings", func(r chi.Router) {
-			r.Get("/news-line", h.UserSettingsNewsline)
-		})
+		r.Put("/settings", h.UserSettingsUpdate)
 		r.Put("/", h.UserEdit)
-		r.Get("/", h.UserProfile)
 
 		r.Route("/{id}", func(r chi.Router) {
 			r.Get("/", h.UserProfileByID)

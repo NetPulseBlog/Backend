@@ -4,14 +4,15 @@ CREATE TYPE user_role_enum as ENUM ('customer', 'sub_site', 'administrator', 'mo
 CREATE TABLE "user"
 (
     "id"                 uuid PRIMARY KEY       NOT NULL,
-    "encrypted_password" character varying               DEFAULT null,
+    "encrypted_password" character varying      NOT NULL,
+    "salt"               character varying      NOT NULL,
 
     "created_at"         TIMESTAMP              NOT NULL DEFAULT now(),
     "updated_at"         TIMESTAMP                       DEFAULT now(),
 
     "account_type"       user_account_type_enum NOT NULL DEFAULT 'personal',
     "role"               user_role_enum         NOT NULL DEFAULT 'customer',
-    "email"              character varying,
+    "email"              character varying UNIQUE,
     "name"               character varying               DEFAULT null,
     "description"        character varying               DEFAULT null,
 
@@ -75,22 +76,22 @@ CREATE TYPE article_status as ENUM ('published', 'draft');
 
 CREATE TABLE "article"
 (
-    "id"           uuid              NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
-    "author_id"    uuid              NOT NULL,
+    "id"             uuid              NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
+    "author_id"      uuid              NOT NULL,
 
-    "status"       article_status    NOT NULL             DEFAULT 'draft',
+    "status"         article_status    NOT NULL             DEFAULT 'draft',
 
-    "created_at"   TIMESTAMP         NOT NULL             DEFAULT now(),
-    "updated_at"   TIMESTAMP                              DEFAULT now(),
+    "created_at"     TIMESTAMP         NOT NULL             DEFAULT now(),
+    "updated_at"     TIMESTAMP                              DEFAULT now(),
 
-    title          character varying NOT NULL,
-    sub_site_id    uuid,
+    "title"          character varying NOT NULL,
+    "sub_site_id"    uuid,
 
-    content_blocks jsonb             NOT NULL             DEFAULT '{}',
-    cover_url      character varying,
-    SubTitle       character varying,
+    "content_blocks" jsonb             NOT NULL             DEFAULT '{}',
+    "cover_url"      character varying,
+    "sub_title"      character varying,
 
-    views_count    int               NOT NULL             DEFAULT 0,
+    "views_count"    int               NOT NULL             DEFAULT 0,
 
     FOREIGN KEY ("author_id") REFERENCES "user" ("id") ON DELETE CASCADE,
     FOREIGN KEY ("sub_site_id") REFERENCES "user" ("id") ON DELETE CASCADE

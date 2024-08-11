@@ -7,6 +7,7 @@ import (
 
 func NewPostgresqlRepositories(db *sql.DB) *repos.Repositories {
 	return &repos.Repositories{
-		Example: NewExampleRepo(db),
+		Auth: NewAuthRepo(db),
+		User: NewUserRepo(db),
 	}
 }

@@ -1,12 +1,15 @@
 package repos
 
+import "app/pkg/domain/entity"
+
 type Repositories struct {
-	Example IExampleRepo
+	Auth IAuthRepo
+	User IUserRepo
 }
 
-type IExampleRepo interface {
-	Create(name string) string
-	Update()
-	Delete()
-	GetList()
+type IAuthRepo interface {
+}
+
+type IUserRepo interface {
+	CreatePersonal(newUser *entity.User) error
 }

@@ -1,17 +1,17 @@
 # Blog Customer Backend
 
 ### Features that were not added in an earlier version (those marked were implemented)
-1. [ ] Reactions to posts
+1. [ ] Moderator rights
+2. [ ] Reactions to posts
 2. [ ] Reactions to comments
 3. [ ] Complaints
 4. [ ] Hiding posts and users
 5. [ ] Blur posts 18+
 6. [ ] OAuth2 (yandex, telegram, and more)
 7. [ ] Deleting an account
-8. [ ] Moderator rights
-9. [ ] Admin
+8. [ ] Admin
+9. [ ] Notifications
 10. [ ] Messages
-11. [ ] Notifications
 
 # App
 To launch the application do the following

@@ -13,6 +13,7 @@ type Config struct {
 	Env        string `yaml:"env" env-default:"local"`
 	HTTPServer `yaml:"http_server"`
 	Postgres   `yaml:"postgres"`
+	JWT        `yaml:"jwt"`
 }
 
 type Postgres struct {
@@ -28,4 +29,8 @@ type HTTPServer struct {
 	Address     string        `yaml:"address" env-default:"localhost:8080"`
 	Timeout     time.Duration `yaml:"timeout" env-default:"4s"`
 	IdleTimeout time.Duration `yaml:"idle_timeout" env-default:"60s"`
+}
+
+type JWT struct {
+	SecretKey string `yaml:"secret_key" env-required:"true"'`
 }

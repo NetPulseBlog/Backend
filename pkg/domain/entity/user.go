@@ -1,7 +1,10 @@
 package entity
 
 import (
+	"app/pkg/lib/ers"
+	"app/pkg/lib/password"
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 	"time"
 )
 
@@ -9,8 +12,8 @@ type UserAccountType string
 type UserRole string
 
 const (
-	UserAccountTypePersonal    UserAccountType = "personal"
-	UserAccountTypeSystemTopic UserAccountType = "system_sub_site"
+	UserAccountTypePersonal      UserAccountType = "personal"
+	UserAccountTypeSystemSubSite UserAccountType = "system_sub_site"
 )
 
 const (
@@ -23,9 +26,10 @@ type User struct {
 	Id                uuid.UUID       `json:"id"`
 	Email             string          `json:"email"`
 	EncryptedPassword string          `json:"encrypted_password"`
+	Salt              string          `json:"salt"`
 	AccountType       UserAccountType `json:"account_type"`
 
-	// TODO: Hash, ConfirmCode, Role, Phone
+	Role UserRole `json:"role"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -42,38 +46,21 @@ type User struct {
 	Settings UserSettings `json:"user_settings"`
 }
 
-//// Validate ...
-//func (u *User) Validate() error {
-//	return validation.ValidateStruct(
-//		u,
-//		validation.Field(&u.Email, validation.Required, is.Email),
-//		validation.Field(&u.Password,
-//			validation.By(requiredIf(u.EncryptedPassword == "")),
-//			validation.Length(6, 100),
-//		),
-//	)
-//}
-//
-//// BeforeCreate ...
-//func (u *User) BeforeCreate() error {
-//	if len(u.Password) > 0 {
-//		enc, err := encryptString(u.Password)
-//
-//		if err != nil {
-//			return err
-//		}
-//
-//		u.EncryptedPassword = enc
-//	}
-//
-//	return nil
-//}
-//
-//func encryptString(s string) (string, error) {
-//	b, err := bcrypt.GenerateFromPassword([]byte(s), bcrypt.MinCost)
-//	if err != nil {
-//		return "", err
-//	}
-//
-//	return string(b), nil
-//}
+func (u *User) CreatePassword(rawPassword string) error {
+	const op = "entity.User.CreatePassword"
+
+	salt, err := password.GenerateRandomSalt(password.DefaultSaltSize)
+	if err != nil {
+		return ers.ThrowMessage(op, err)
+	}
+	u.Salt = salt
+
+	passwordWithSalt := rawPassword + salt
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(passwordWithSalt), bcrypt.DefaultCost)
+	if err != nil {
+		return ers.ThrowMessage(op, err)
+	}
+
+	u.EncryptedPassword = string(hashedPassword)
+	return nil
+}

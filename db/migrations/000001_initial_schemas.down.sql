@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS "user_settings" CASCADE;
 DROP TABLE IF EXISTS "user" CASCADE;
 
 DROP TYPE IF EXISTS bookmark_type_enum CASCADE;
+DROP TYPE IF EXISTS user_role_enum CASCADE;
 DROP TYPE IF EXISTS article_status CASCADE;
 DROP TYPE IF EXISTS news_line_sort_enum CASCADE;
 DROP TYPE IF EXISTS news_line_default_enum CASCADE;

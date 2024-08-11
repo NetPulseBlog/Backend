@@ -13,7 +13,7 @@ type Response struct {
 }
 
 const (
-	StatusOK    = "OK"
+	StatusOK    = "Oк"
 	StatusError = "Error"
 )
 
@@ -32,7 +32,8 @@ func Error(msg string) Response {
 
 func ValidationError(errs validator.ValidationErrors) Response {
 	var errMsgs []string
-
+	// todo: add json structure instead of string
+	// todo: add password field
 	for _, err := range errs {
 		switch err.ActualTag() {
 		case "required":
