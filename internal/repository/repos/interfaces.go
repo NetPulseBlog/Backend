@@ -8,6 +8,7 @@ type Repositories struct {
 }
 
 type IAuthRepo interface {
+	Create(entity.UserAuth) error
 }
 
 type IUserRepo interface {

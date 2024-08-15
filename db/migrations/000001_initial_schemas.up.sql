@@ -35,16 +35,19 @@ CREATE TABLE "user_settings"
 
 CREATE TABLE "user_auth"
 (
-    "id"            uuid              NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
-    "user_id"       uuid              NOT NULL,
+    "id"                 uuid              NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
+    "user_id"            uuid              NOT NULL,
 
-    "refresh_token" character varying NOT NULL,
-    "access_token"  character varying NOT NULL,
+    "refresh_token"      character varying NOT NULL,
+    "access_token"       character varying NOT NULL,
 
-    "device_name"   character varying NOT NULL,
+    "device_name"        character varying NOT NULL,
 
-    "expires_at"    TIMESTAMP         NOT NULL,
-    "created_at"    TIMESTAMP         NOT NULL             DEFAULT now(),
+    "access_expires_at"  TIMESTAMP         NOT NULL,
+    "refresh_expires_at" TIMESTAMP         NOT NULL,
+
+    "created_at"         TIMESTAMP         NOT NULL             DEFAULT now(),
+    "updated_at"         TIMESTAMP         NOT NULL             DEFAULT now(),
 
     FOREIGN KEY ("user_id") REFERENCES "user" ("id") ON DELETE CASCADE
 );

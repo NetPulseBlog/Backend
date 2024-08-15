@@ -5,6 +5,7 @@ import (
 	"app/internal/service/dto"
 	"app/pkg/domain/entity"
 	"github.com/google/uuid"
+	"strings"
 	"time"
 )
 
@@ -27,9 +28,9 @@ func (s *User) SignUp(initialUserData dto.UserSignUpRequestDTO) (*entity.User, e
 	}
 	newUser := entity.User{
 		Id:          newUserId,
-		Name:        initialUserData.Name,
+		Name:        strings.TrimSpace(initialUserData.Name),
 		Description: "",
-		Email:       initialUserData.Email,
+		Email:       strings.TrimSpace(initialUserData.Email),
 
 		Role:        entity.UserRoleCustomer,
 		AccountType: entity.UserAccountTypePersonal,

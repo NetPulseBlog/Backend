@@ -5,6 +5,7 @@ import (
 	"app/pkg/lib/password"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
+	"strings"
 	"time"
 )
 
@@ -55,7 +56,7 @@ func (u *User) CreatePassword(rawPassword string) error {
 	}
 	u.Salt = salt
 
-	passwordWithSalt := rawPassword + salt
+	passwordWithSalt := strings.TrimSpace(rawPassword) + salt
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(passwordWithSalt), bcrypt.DefaultCost)
 	if err != nil {
 		return ers.ThrowMessage(op, err)

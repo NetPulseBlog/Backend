@@ -5,20 +5,28 @@ import (
 	"time"
 )
 
+const (
+	AccessTokenFieldName  = "access_token"
+	RefreshTokenFieldName = "refresh_token"
+)
+
 type UserAuth struct {
 	Id     uuid.UUID `json:"id"`
 	UserId uuid.UUID `json:"user_id"`
 
-	RefreshToken string `json:"refresh_token"`
-	AccessToken  string `json:"access_token"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 
 	DeviceName string `json:"device_name"`
+	Token      AuthToken
 
-	ExpiresAt time.Time `json:"expires_at"`
-	CreatedAt time.Time `json:"created_at"`
+	// todo Last Activity by current auth
 }
 
 type AuthToken struct {
 	Access  string `json:"access"`
 	Refresh string `json:"refresh"`
+
+	AccessExpiresAt  time.Time `json:"access_expires_at"`
+	RefreshExpiresAt time.Time `json:"refresh_expires_at"`
 }

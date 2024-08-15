@@ -38,7 +38,8 @@ func (app *App) New() {
 
 	// Services
 	services := service.NewServices(service.Deps{
-		Repos: repositories,
+		Repos:  repositories,
+		Config: cfg,
 	})
 
 	// HTTP Handler

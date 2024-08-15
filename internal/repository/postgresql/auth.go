@@ -1,6 +1,10 @@
 package postgresql
 
-import "database/sql"
+import (
+	"app/pkg/domain/entity"
+	"database/sql"
+	"fmt"
+)
 
 type AuthRepo struct {
 	db *sql.DB
@@ -12,18 +16,30 @@ func NewAuthRepo(db *sql.DB) *AuthRepo {
 	}
 }
 
-//func (receiver ExampleRepo) Create(name string) string {
-//	return "Created"
-//}
-//
-//func (receiver ExampleRepo) Update() {
-//	panic("IMPLEMENT ME...")
-//}
-//
-//func (receiver ExampleRepo) GetList() {
-//	panic("IMPLEMENT ME...")
-//}
-//
-//func (receiver ExampleRepo) Delete() {
-//	panic("IMPLEMENT ME...")
-//}
+func (repo AuthRepo) Create(uAuth entity.UserAuth) error {
+	const op = "postgresql.AuthRepo.Create"
+
+	newUserStmt, err := repo.db.Prepare(
+		`INSERT INTO "user_auth" (id, user_id, refresh_token, access_token, device_name, access_expires_at, refresh_expires_at, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+	)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	_, err = newUserStmt.Exec(
+		uAuth.Id,
+		uAuth.UserId,
+		uAuth.Token.Refresh,
+		uAuth.Token.Access,
+		uAuth.DeviceName,
+		uAuth.Token.AccessExpiresAt.UTC(),
+		uAuth.Token.RefreshExpiresAt.UTC(),
+		uAuth.CreatedAt.UTC(),
+		uAuth.UpdatedAt.UTC(),
+	)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}

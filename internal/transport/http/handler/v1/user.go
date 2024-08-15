@@ -4,13 +4,13 @@ import (
 	"app/internal/service/dto"
 	"app/pkg/api/response"
 	"app/pkg/auth"
-	"app/pkg/domain/entity"
 	"app/pkg/infra/logger/sl"
 	vrules "app/pkg/lib/v-rules"
 	"errors"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"github.com/go-playground/validator/v10"
+	"github.com/mileusna/useragent"
 	"log/slog"
 	"net/http"
 )
@@ -50,22 +50,20 @@ func (h *Handler) UserSignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = u
-
-	token, err := h.services.Auth.Authorize(u)
+	token, err := h.services.Auth.Authorize(u, auth.CreateDeviceNameFromUserAgent(useragent.Parse(r.UserAgent())))
 	if err != nil {
 		log.Error("Service Auth.Authorize method is failed:", sl.Err(err))
 		render.JSON(w, r, response.Error("Bad request..."))
 		return
 	}
 
-	auth.AuthorizeByCookieLevel(token, w)
+	auth.AuthorizeByCookieLevel(token, u.Id, w)
 
-	render.JSON(w, r, struct {
-		Status string            `json:"status"`
-		User   *entity.User      `json:"user"`
-		Token  *entity.AuthToken `json:"token"`
-	}{Status: response.StatusOK, User: u, Token: token})
+	render.JSON(w, r, dto.UserSignUpResponseDTO{
+		Status: response.StatusOK,
+		User:   dto.NewPublicUserResponseType(u),
+		Token:  token,
+	})
 }
 
 func (h *Handler) UserSignIn(w http.ResponseWriter, r *http.Request) {

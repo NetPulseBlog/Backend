@@ -1,11 +1,13 @@
 package service
 
 import (
+	"app/internal/config"
 	"app/internal/repository/repos"
 )
 
 type Deps struct {
-	Repos *repos.Repositories
+	Repos  *repos.Repositories
+	Config *config.Config
 }
 
 type Services struct {
@@ -15,7 +17,7 @@ type Services struct {
 
 func NewServices(deps Deps) *Services {
 	userService := NewUserService(deps.Repos.User)
-	authService := NewAuthService(deps.Repos.Auth)
+	authService := NewAuthService(deps.Repos.Auth, deps.Config)
 
 	return &Services{
 		User: *userService,
