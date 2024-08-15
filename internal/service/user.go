@@ -4,6 +4,7 @@ import (
 	"app/internal/repository/repos"
 	"app/internal/service/dto"
 	"app/pkg/domain/entity"
+	"app/pkg/lib/ers"
 	"github.com/google/uuid"
 	"strings"
 	"time"
@@ -11,10 +12,12 @@ import (
 
 type User struct {
 	userRepo repos.IUserRepo
+
+	authService *Auth
 }
 
-func NewUserService(userRepo repos.IUserRepo) *User {
-	return &User{userRepo: userRepo}
+func NewUserService(userRepo repos.IUserRepo, authService *Auth) *User {
+	return &User{userRepo: userRepo, authService: authService}
 }
 
 func (s *User) SignUp(initialUserData dto.UserSignUpRequestDTO) (*entity.User, error) {
@@ -46,12 +49,32 @@ func (s *User) SignUp(initialUserData dto.UserSignUpRequestDTO) (*entity.User, e
 
 	err := newUser.CreatePassword(initialUserData.Password)
 	if err != nil {
-		return nil, err
+		return nil, ers.ThrowMessage(op, err)
 	}
 
 	if err := s.userRepo.CreatePersonal(&newUser); err != nil {
-		return nil, err
+		return nil, ers.ThrowMessage(op, err)
 	}
 
 	return &newUser, nil
+}
+
+func (s *User) SignIn(reqData dto.UserSignInRequestDTO, deviceName string) (*entity.AuthToken, *entity.User, error) {
+	const op = "service.User.SignIn"
+
+	foundUser, err := s.userRepo.FindByEmail(reqData.Email)
+	if err != nil {
+		return nil, nil, ers.ThrowMessage(op, err)
+	}
+
+	if isValidPassword, err := foundUser.ComparePassword(reqData.Password); err != nil && !isValidPassword {
+		return nil, nil, ers.ThrowMessage(op, entity.ErrUserInvalidPassword)
+	}
+
+	token, err := s.authService.Authorize(&foundUser, deviceName)
+	if err != nil {
+		return nil, nil, ers.ThrowMessage(op, err)
+	}
+
+	return token, &foundUser, nil
 }

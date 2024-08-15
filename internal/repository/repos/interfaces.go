@@ -12,5 +12,6 @@ type IAuthRepo interface {
 }
 
 type IUserRepo interface {
+	FindByEmail(email string) (entity.User, error)
 	CreatePersonal(newUser *entity.User) error
 }

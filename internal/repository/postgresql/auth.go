@@ -2,8 +2,8 @@ package postgresql
 
 import (
 	"app/pkg/domain/entity"
+	"app/pkg/lib/ers"
 	"database/sql"
-	"fmt"
 )
 
 type AuthRepo struct {
@@ -23,7 +23,7 @@ func (repo AuthRepo) Create(uAuth entity.UserAuth) error {
 		`INSERT INTO "user_auth" (id, user_id, refresh_token, access_token, device_name, access_expires_at, refresh_expires_at, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
 	)
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return ers.ThrowMessage(op, err)
 	}
 
 	_, err = newUserStmt.Exec(
@@ -38,7 +38,7 @@ func (repo AuthRepo) Create(uAuth entity.UserAuth) error {
 		uAuth.UpdatedAt.UTC(),
 	)
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return ers.ThrowMessage(op, err)
 	}
 
 	return nil

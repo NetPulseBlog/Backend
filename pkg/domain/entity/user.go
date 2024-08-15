@@ -3,6 +3,8 @@ package entity
 import (
 	"app/pkg/lib/ers"
 	"app/pkg/lib/password"
+	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"strings"
@@ -21,6 +23,11 @@ const (
 	UserRoleCustomer  UserRole = "customer"
 	UserRoleAdmin     UserRole = "administrator"
 	UserRoleModerator UserRole = "moderator"
+)
+
+var (
+	ErrUserNotFound        = errors.New("User not found")
+	ErrUserInvalidPassword = errors.New("User password is invalid")
 )
 
 type User struct {
@@ -63,5 +70,14 @@ func (u *User) CreatePassword(rawPassword string) error {
 	}
 
 	u.EncryptedPassword = string(hashedPassword)
+	fmt.Println(u.EncryptedPassword)
+
 	return nil
+}
+
+func (u *User) ComparePassword(rawPassword string) (bool, error) {
+	const op = "entity.User.ComparePassword"
+
+	err := bcrypt.CompareHashAndPassword([]byte(u.EncryptedPassword), []byte(rawPassword+u.Salt))
+	return err == nil, ers.ThrowMessage(op, err)
 }
