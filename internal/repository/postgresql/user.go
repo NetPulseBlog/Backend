@@ -5,6 +5,7 @@ import (
 	"app/pkg/lib/ers"
 	"database/sql"
 	"fmt"
+	"github.com/google/uuid"
 )
 
 type UserRepo struct {
@@ -17,7 +18,9 @@ func NewUserRepo(db *sql.DB) *UserRepo {
 	}
 }
 
-func (repo UserRepo) FindByEmail(email string) (entity.User, error) {
+func (repo UserRepo) FindById(id uuid.UUID) (*entity.User, error) {
+	const op = "postgresql.UserRepo.FindById"
+
 	fUserSettings := entity.UserSettings{}
 	fUser := entity.User{}
 
@@ -32,12 +35,8 @@ func (repo UserRepo) FindByEmail(email string) (entity.User, error) {
 		INNER JOIN 
 			"user_settings" us ON u.id = us.user_id
 		WHERE 
-			u.email = $1
-    `, email)
-	if row == nil {
-		return fUser, fmt.Errorf("user with email %s not found", email, entity.ErrUserNotFound)
-	}
-
+			u.id = $1
+    `, id)
 	err := row.Scan(
 		&fUser.Id,
 		&fUser.EncryptedPassword,
@@ -57,13 +56,60 @@ func (repo UserRepo) FindByEmail(email string) (entity.User, error) {
 		&fUserSettings.NewsLineSort,
 	)
 	if err != nil {
-		return fUser, fmt.Errorf("user with email %s not found", email, entity.ErrUserNotFound)
+		return &fUser, ers.ThrowMessage(op, fmt.Errorf("user with id %s not found", id, entity.ErrUserNotFound))
 	}
 
 	fUserSettings.UserId = fUser.Id
 	fUser.Settings = fUserSettings
 
-	return fUser, nil
+	return &fUser, nil
+}
+
+func (repo UserRepo) FindByEmail(email string) (*entity.User, error) {
+	const op = "postgresql.UserRepo.FindByEmail"
+
+	fUserSettings := entity.UserSettings{}
+	fUser := entity.User{}
+
+	row := repo.db.QueryRow(`
+	   SELECT 
+			u.*,
+			(SELECT COUNT(*) FROM user_subscription WHERE subscriber_id = u.id) AS subscriptions_count,
+			(SELECT COUNT(*) FROM user_subscription WHERE subscribed_user_id = u.id) AS subscribers_count,
+			us.news_line_default, us.news_line_sort
+		FROM 
+			"user" u
+		INNER JOIN 
+			"user_settings" us ON u.id = us.user_id
+		WHERE 
+			u.email = $1
+    `, email)
+	err := row.Scan(
+		&fUser.Id,
+		&fUser.EncryptedPassword,
+		&fUser.Salt,
+		&fUser.CreatedAt,
+		&fUser.UpdatedAt,
+		&fUser.AccountType,
+		&fUser.Role,
+		&fUser.Email,
+		&fUser.Name,
+		&fUser.Description,
+		&fUser.AvatarUrl,
+		&fUser.CoverUrl,
+		&fUser.SubscriptionsCount,
+		&fUser.SubscribersCount,
+		&fUserSettings.NewsLineDefault,
+		&fUserSettings.NewsLineSort,
+	)
+	if err != nil {
+		return &fUser, ers.ThrowMessage(op, fmt.Errorf("user with email %s not found", email, entity.ErrUserNotFound))
+	}
+
+	fUserSettings.UserId = fUser.Id
+	fUser.Settings = fUserSettings
+
+	return &fUser, nil
 }
 
 func (repo UserRepo) CreatePersonal(newUser *entity.User) error {

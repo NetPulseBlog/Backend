@@ -59,7 +59,7 @@ func (s *User) SignUp(initialUserData dto.UserSignUpRequestDTO) (*entity.User, e
 	return &newUser, nil
 }
 
-func (s *User) SignIn(reqData dto.UserSignInRequestDTO, deviceName string) (*entity.AuthToken, *entity.User, error) {
+func (s *User) SignIn(reqData dto.UserSignInRequestDTO, deviceName string) (*entity.UserAuth, *entity.User, error) {
 	const op = "service.User.SignIn"
 
 	foundUser, err := s.userRepo.FindByEmail(reqData.Email)
@@ -71,10 +71,10 @@ func (s *User) SignIn(reqData dto.UserSignInRequestDTO, deviceName string) (*ent
 		return nil, nil, ers.ThrowMessage(op, entity.ErrUserInvalidPassword)
 	}
 
-	token, err := s.authService.Authorize(&foundUser, deviceName)
+	uAuth, err := s.authService.Authorize(foundUser, deviceName)
 	if err != nil {
 		return nil, nil, ers.ThrowMessage(op, err)
 	}
 
-	return token, &foundUser, nil
+	return uAuth, foundUser, nil
 }

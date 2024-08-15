@@ -28,6 +28,7 @@ func (h *Handler) UserSignUp(w http.ResponseWriter, r *http.Request) {
 	err := render.DecodeJSON(r.Body, &reqBody)
 	if err != nil {
 		log.Error("Failed to parse request body", sl.Err(err))
+		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, response.Error("Bad Request!"))
 		return
 	}
@@ -40,6 +41,7 @@ func (h *Handler) UserSignUp(w http.ResponseWriter, r *http.Request) {
 		errors.As(err, &validateErr)
 
 		log.Error("Invalid request", sl.Err(err))
+		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, response.ValidationError(validateErr))
 		return
 	}
@@ -51,19 +53,21 @@ func (h *Handler) UserSignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.services.Auth.Authorize(u, auth.CreateDeviceNameFromUserAgent(useragent.Parse(r.UserAgent())))
+	uAuth, err := h.services.Auth.Authorize(u, auth.CreateDeviceNameFromUserAgent(useragent.Parse(r.UserAgent())))
 	if err != nil {
 		log.Error("Request failed:", sl.Err(err))
+		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, response.Error("Bad request..."))
 		return
 	}
 
-	auth.AuthorizeByCookieLevel(token, u.Id, w)
+	auth.AuthorizeByCookieLevel(&uAuth.Token, uAuth.Id, w)
 
-	render.JSON(w, r, dto.UserSignUpResponseDTO{
+	render.JSON(w, r, dto.UserSignResponseDTO{
 		Status: response.StatusOK,
 		User:   dto.NewPublicUserResponseType(u),
-		Token:  token,
+		Token:  &uAuth.Token,
+		AuthId: uAuth.Id.String(),
 	})
 }
 
@@ -79,6 +83,7 @@ func (h *Handler) UserSignIn(w http.ResponseWriter, r *http.Request) {
 	err := render.DecodeJSON(r.Body, &reqBody)
 	if err != nil {
 		log.Error("Failed to parse request body", sl.Err(err))
+		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, response.Error("Bad Request!"))
 		return
 	}
@@ -91,35 +96,40 @@ func (h *Handler) UserSignIn(w http.ResponseWriter, r *http.Request) {
 		errors.As(err, &validateErr)
 
 		log.Error("Invalid request", sl.Err(err))
+		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, response.ValidationError(validateErr))
 		return
 	}
 
-	t, u, err := h.services.User.SignIn(reqBody, auth.CreateDeviceNameFromUserAgent(useragent.Parse(r.UserAgent())))
+	uAuth, u, err := h.services.User.SignIn(reqBody, auth.CreateDeviceNameFromUserAgent(useragent.Parse(r.UserAgent())))
 	if err != nil {
 		if errors.Is(err, entity.ErrUserNotFound) {
 			log.Error("User not found:", sl.Err(err))
+			render.Status(r, http.StatusNotFound)
 			render.JSON(w, r, response.Error("User not found..."))
 			return
 		}
 
 		if errors.Is(err, entity.ErrUserInvalidPassword) {
 			log.Error("User password is invalid:", sl.Err(err))
+			render.Status(r, http.StatusMethodNotAllowed)
 			render.JSON(w, r, response.Error("Password is invalid..."))
 			return
 		}
 
 		log.Error("Request failed:", sl.Err(err))
+		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, response.Error("Bad request..."))
 		return
 	}
 
-	auth.AuthorizeByCookieLevel(t, u.Id, w)
+	auth.AuthorizeByCookieLevel(&uAuth.Token, uAuth.Id, w)
 
-	render.JSON(w, r, dto.UserSignUpResponseDTO{
+	render.JSON(w, r, dto.UserSignResponseDTO{
 		Status: response.StatusOK,
 		User:   dto.NewPublicUserResponseType(u),
-		Token:  t,
+		Token:  &uAuth.Token,
+		AuthId: uAuth.Id.String(),
 	})
 }
 

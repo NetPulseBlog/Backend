@@ -2,8 +2,15 @@ package dto
 
 import (
 	"app/pkg/domain/entity"
+	"github.com/google/uuid"
 	"time"
 )
+
+type UserRefreshTokenRequestDTO struct {
+	AuthId       uuid.UUID `json:"email"`
+	RefreshToken string    `json:"refreshToken"`
+	AccessToken  string    `json:"accessToken"`
+}
 
 type UserSignInRequestDTO struct {
 	Email    string `json:"email" validate:"required,email"`
@@ -19,16 +26,16 @@ type UserSignUpRequestDTO struct {
 type PublicUserResponseType struct {
 	Name               string                 `json:"name"`
 	Email              string                 `json:"email"`
-	AccountType        entity.UserAccountType `json:"account_type"`
+	AccountType        entity.UserAccountType `json:"accountType"`
 	Role               entity.UserRole        `json:"role"`
-	CreatedAt          time.Time              `json:"created_at"`
-	UpdatedAt          time.Time              `json:"updated_at"`
-	AvatarUrl          string                 `json:"avatar_url"`
-	CoverUrl           string                 `json:"cover_url"`
+	CreatedAt          time.Time              `json:"createdAt"`
+	UpdatedAt          time.Time              `json:"updatedAt"`
+	AvatarUrl          string                 `json:"avatarUrl"`
+	CoverUrl           string                 `json:"coverUrl"`
 	Description        string                 `json:"description"`
-	SubscribersCount   int                    `json:"subscribers_count"`
-	SubscriptionsCount int                    `json:"subscriptions_count"`
-	Settings           entity.UserSettings    `json:"user_settings"`
+	SubscribersCount   int                    `json:"subscribersCount"`
+	SubscriptionsCount int                    `json:"subscriptionsCount"`
+	Settings           entity.UserSettings    `json:"settings"`
 }
 
 func NewPublicUserResponseType(u *entity.User) *PublicUserResponseType {
@@ -50,8 +57,15 @@ func NewPublicUserResponseType(u *entity.User) *PublicUserResponseType {
 	return &pu
 }
 
-type UserSignUpResponseDTO struct {
+type UserSignResponseDTO struct {
 	Status string                  `json:"status"`
 	User   *PublicUserResponseType `json:"user"`
 	Token  *entity.AuthToken       `json:"token"`
+	AuthId string                  `json:"authId"`
+}
+
+type UserRefreshTokensResponseDTO struct {
+	Status string            `json:"status"`
+	Token  *entity.AuthToken `json:"token"`
+	AuthId string            `json:"authId"`
 }
