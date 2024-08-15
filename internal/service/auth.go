@@ -4,6 +4,8 @@ import (
 	"app/internal/config"
 	"app/internal/repository/repos"
 	"app/pkg/domain/entity"
+	"app/pkg/lib/ers"
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 	"time"
@@ -11,25 +13,74 @@ import (
 
 type Auth struct {
 	authRepo repos.IAuthRepo
+	userRepo repos.IUserRepo
 	cfg      *config.Config
 }
 
-const (
-	JWTAccessExpiresDaysInHours  = 24 * 7  // 7 days
-	JWTRefreshExpiresDaysInHours = 24 * 30 // 1 month
-)
-
-type JwtClaims struct {
-	UserId uuid.UUID `json:"user_id"`
-	Email  string    `json:"email"`
-	jwt.StandardClaims
+func NewAuthService(authRepo repos.IAuthRepo, userRepo repos.IUserRepo, cfg *config.Config) *Auth {
+	return &Auth{authRepo: authRepo, userRepo: userRepo, cfg: cfg}
 }
 
-func NewAuthService(authRepo repos.IAuthRepo, cfg *config.Config) *Auth {
-	return &Auth{authRepo: authRepo, cfg: cfg}
+func (s *Auth) RefreshTokens(authId uuid.UUID, refreshToken string) (*entity.UserAuth, error) {
+	const op = "service.Auth.RefreshTokens"
+
+	uAuth, err := s.authRepo.GetById(authId)
+	if err != nil {
+		return nil, ers.ThrowMessage(op, err)
+	}
+
+	if uAuth.Token.Refresh != refreshToken {
+		return nil, ers.ThrowMessage(op, fmt.Errorf("invalid refresh token"))
+	}
+
+	parsedRefreshToken, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
+		return []byte(s.cfg.JWT.SecretKey), nil
+	})
+	if err != nil {
+		return nil, ers.ThrowMessage(op, err)
+	}
+
+	_, ok := parsedRefreshToken.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, ers.ThrowMessage(op, fmt.Errorf("invalid refresh token"))
+	}
+
+	if uAuth.Token.RefreshExpiresAt.Unix() < time.Now().Unix() {
+		return nil, ers.ThrowMessage(op, fmt.Errorf("refresh token has expired"))
+	}
+
+	u, err := s.userRepo.FindById(uAuth.UserId)
+	if err != nil {
+		return nil, err
+	}
+	err = uAuth.GenerateTokens(u, s.cfg.JWT.SecretKey)
+	if err != nil {
+		return nil, ers.ThrowMessage(op, err)
+	}
+
+	err = s.authRepo.Update(uAuth)
+	if err != nil {
+		return nil, ers.ThrowMessage(op, err)
+	}
+
+	return uAuth, nil
 }
 
-func (s *Auth) Authorize(u *entity.User, deviceName string) (*entity.AuthToken, error) {
+func (s *Auth) Logout(authId uuid.UUID) error {
+	const op = "service.Auth.Logout"
+	if err := s.authRepo.DeleteItem(authId); err != nil {
+		return ers.ThrowMessage(op, err)
+	}
+
+	return nil
+}
+
+func (s *Auth) Authorize(u *entity.User, deviceName string) (*entity.UserAuth, error) {
+	const op = "service.Auth.Authorize"
+
+	// find user auth by user_id and device_name
+	// remove exist auth by device
+
 	uAuth := entity.UserAuth{
 		Id:     uuid.New(),
 		UserId: u.Id,
@@ -39,47 +90,15 @@ func (s *Auth) Authorize(u *entity.User, deviceName string) (*entity.AuthToken, 
 
 		DeviceName: deviceName,
 	}
-	uaToken := entity.AuthToken{
-		RefreshExpiresAt: time.Now().Add(time.Hour * JWTRefreshExpiresDaysInHours),
-		AccessExpiresAt:  time.Now().Add(time.Hour * JWTAccessExpiresDaysInHours),
-	}
 
-	accessTokenClaims := &JwtClaims{
-		UserId: u.Id,
-		Email:  u.Email,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: uaToken.AccessExpiresAt.Unix(),
-		},
-	}
-
-	refreshTokenClaims := &JwtClaims{
-		UserId: u.Id,
-		Email:  u.Email,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: uaToken.RefreshExpiresAt.Unix(),
-		},
-	}
-
-	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenClaims)
-	accessTokenString, err := accessToken.SignedString([]byte(s.cfg.JWT.SecretKey))
+	err := uAuth.GenerateTokens(u, s.cfg.SecretKey)
 	if err != nil {
-		return nil, err
+		return nil, ers.ThrowMessage(op, err)
 	}
-
-	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshTokenClaims)
-	refreshTokenString, err := refreshToken.SignedString([]byte(s.cfg.JWT.SecretKey))
-	if err != nil {
-		return nil, err
-	}
-
-	uaToken.Access = accessTokenString
-	uaToken.Refresh = refreshTokenString
-
-	uAuth.Token = uaToken
 
 	if err := s.authRepo.Create(uAuth); err != nil {
-		return nil, err
+		return nil, ers.ThrowMessage(op, err)
 	}
 
-	return &uAuth.Token, nil
+	return &uAuth, nil
 }

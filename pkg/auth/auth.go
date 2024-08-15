@@ -11,7 +11,7 @@ func CreateDeviceNameFromUserAgent(ua useragent.UserAgent) string {
 	return ua.Name + " " + ua.OS + "(" + ua.String + ")"
 }
 
-func AuthorizeByCookieLevel(token *entity.AuthToken, userId uuid.UUID, w http.ResponseWriter) {
+func AuthorizeByCookieLevel(token *entity.AuthToken, authId uuid.UUID, w http.ResponseWriter) {
 	accessCookie := &http.Cookie{
 		Name:     entity.AccessTokenFieldName,
 		Value:    token.Access,
@@ -30,9 +30,9 @@ func AuthorizeByCookieLevel(token *entity.AuthToken, userId uuid.UUID, w http.Re
 		Expires:  token.RefreshExpiresAt,
 	}
 
-	userIdCookie := &http.Cookie{
-		Name:     "userId",
-		Value:    userId.String(),
+	authIdCookie := &http.Cookie{
+		Name:     entity.AuthIdFieldName,
+		Value:    authId.String(),
 		Path:     "/",
 		HttpOnly: true,
 		Secure:   true,
@@ -41,5 +41,5 @@ func AuthorizeByCookieLevel(token *entity.AuthToken, userId uuid.UUID, w http.Re
 	// Записываем куки в ответ
 	http.SetCookie(w, accessCookie)
 	http.SetCookie(w, refreshCookie)
-	http.SetCookie(w, userIdCookie)
+	http.SetCookie(w, authIdCookie)
 }

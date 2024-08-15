@@ -28,9 +28,7 @@ func (h *Handler) InitRouter() http.Handler {
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/sign-up", h.UserSignUp)
 			r.Post("/sign-in", h.UserSignIn)
-			r.Route("/token", func(r chi.Router) {
-				r.Post("/refresh", h.UserAuthTokenRefresh)
-			})
+			r.Post("/refresh-token", h.UserAuthTokenRefresh)
 		})
 		r.Put("/settings", h.UserSettingsUpdate)
 		r.Put("/", h.UserEdit)

@@ -2,8 +2,10 @@ package postgresql
 
 import (
 	"app/pkg/domain/entity"
+	"app/pkg/lib/ers"
 	"database/sql"
 	"fmt"
+	"github.com/google/uuid"
 )
 
 type UserRepo struct {
@@ -16,19 +18,113 @@ func NewUserRepo(db *sql.DB) *UserRepo {
 	}
 }
 
-func (uR UserRepo) CreatePersonal(newUser *entity.User) error {
+func (repo UserRepo) FindById(id uuid.UUID) (*entity.User, error) {
+	const op = "postgresql.UserRepo.FindById"
+
+	fUserSettings := entity.UserSettings{}
+	fUser := entity.User{}
+
+	row := repo.db.QueryRow(`
+	   SELECT 
+			u.*,
+			(SELECT COUNT(*) FROM user_subscription WHERE subscriber_id = u.id) AS subscriptions_count,
+			(SELECT COUNT(*) FROM user_subscription WHERE subscribed_user_id = u.id) AS subscribers_count,
+			us.news_line_default, us.news_line_sort
+		FROM 
+			"user" u
+		INNER JOIN 
+			"user_settings" us ON u.id = us.user_id
+		WHERE 
+			u.id = $1
+    `, id)
+	err := row.Scan(
+		&fUser.Id,
+		&fUser.EncryptedPassword,
+		&fUser.Salt,
+		&fUser.CreatedAt,
+		&fUser.UpdatedAt,
+		&fUser.AccountType,
+		&fUser.Role,
+		&fUser.Email,
+		&fUser.Name,
+		&fUser.Description,
+		&fUser.AvatarUrl,
+		&fUser.CoverUrl,
+		&fUser.SubscriptionsCount,
+		&fUser.SubscribersCount,
+		&fUserSettings.NewsLineDefault,
+		&fUserSettings.NewsLineSort,
+	)
+	if err != nil {
+		return &fUser, ers.ThrowMessage(op, fmt.Errorf("user with id %s not found", id, entity.ErrUserNotFound))
+	}
+
+	fUserSettings.UserId = fUser.Id
+	fUser.Settings = fUserSettings
+
+	return &fUser, nil
+}
+
+func (repo UserRepo) FindByEmail(email string) (*entity.User, error) {
+	const op = "postgresql.UserRepo.FindByEmail"
+
+	fUserSettings := entity.UserSettings{}
+	fUser := entity.User{}
+
+	row := repo.db.QueryRow(`
+	   SELECT 
+			u.*,
+			(SELECT COUNT(*) FROM user_subscription WHERE subscriber_id = u.id) AS subscriptions_count,
+			(SELECT COUNT(*) FROM user_subscription WHERE subscribed_user_id = u.id) AS subscribers_count,
+			us.news_line_default, us.news_line_sort
+		FROM 
+			"user" u
+		INNER JOIN 
+			"user_settings" us ON u.id = us.user_id
+		WHERE 
+			u.email = $1
+    `, email)
+	err := row.Scan(
+		&fUser.Id,
+		&fUser.EncryptedPassword,
+		&fUser.Salt,
+		&fUser.CreatedAt,
+		&fUser.UpdatedAt,
+		&fUser.AccountType,
+		&fUser.Role,
+		&fUser.Email,
+		&fUser.Name,
+		&fUser.Description,
+		&fUser.AvatarUrl,
+		&fUser.CoverUrl,
+		&fUser.SubscriptionsCount,
+		&fUser.SubscribersCount,
+		&fUserSettings.NewsLineDefault,
+		&fUserSettings.NewsLineSort,
+	)
+	if err != nil {
+		return &fUser, ers.ThrowMessage(op, fmt.Errorf("user with email %s not found", email, entity.ErrUserNotFound))
+	}
+
+	fUserSettings.UserId = fUser.Id
+	fUser.Settings = fUserSettings
+
+	return &fUser, nil
+}
+
+func (repo UserRepo) CreatePersonal(newUser *entity.User) error {
 	const op = "postgresql.UserRepo.CreatePersonal"
 
-	tx, err := uR.db.Begin()
+	tx, err := repo.db.Begin()
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return ers.ThrowMessage(op, err)
 	}
 
 	newUserStmt, err := tx.Prepare(
 		`INSERT INTO "user"(id, encrypted_password, salt, created_at, updated_at, account_type, role, email, name, description, avatar_url, cover_url) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
 	)
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return ers.ThrowMessage(op, err)
 	}
 
 	_, err = newUserStmt.Exec(
@@ -46,7 +142,7 @@ func (uR UserRepo) CreatePersonal(newUser *entity.User) error {
 		newUser.CoverUrl,
 	)
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return ers.ThrowMessage(op, err)
 	}
 
 	userSettingsStmt, err := tx.Prepare(
@@ -54,7 +150,7 @@ func (uR UserRepo) CreatePersonal(newUser *entity.User) error {
 	)
 	if err != nil {
 		tx.Rollback()
-		return fmt.Errorf("%s: %w", op, err)
+		return ers.ThrowMessage(op, err)
 	}
 
 	_, err = userSettingsStmt.Exec(
@@ -64,12 +160,12 @@ func (uR UserRepo) CreatePersonal(newUser *entity.User) error {
 	)
 	if err != nil {
 		tx.Rollback()
-		return fmt.Errorf("%s: %w", op, err)
+		return ers.ThrowMessage(op, err)
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return ers.ThrowMessage(op, err)
 	}
 
 	return nil
