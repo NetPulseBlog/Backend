@@ -29,7 +29,7 @@ func (h *Handler) UserSignUp(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error("Failed to parse request body", sl.Err(err))
 		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, response.Error("Bad Request!"))
+		render.JSON(w, r, response.Error(response.ErrBadRequest))
 		return
 	}
 
@@ -49,7 +49,7 @@ func (h *Handler) UserSignUp(w http.ResponseWriter, r *http.Request) {
 	u, err := h.services.User.SignUp(reqBody)
 	if err != nil {
 		log.Error("Request failed:", sl.Err(err))
-		render.JSON(w, r, response.Error("Bad request..."))
+		render.JSON(w, r, response.Error(response.ErrBadRequest))
 		return
 	}
 
@@ -57,7 +57,7 @@ func (h *Handler) UserSignUp(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error("Request failed:", sl.Err(err))
 		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, response.Error("Bad request..."))
+		render.JSON(w, r, response.Error(response.ErrBadRequest))
 		return
 	}
 
@@ -84,7 +84,7 @@ func (h *Handler) UserSignIn(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error("Failed to parse request body", sl.Err(err))
 		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, response.Error("Bad Request!"))
+		render.JSON(w, r, response.Error(response.ErrBadRequest))
 		return
 	}
 
@@ -106,20 +106,20 @@ func (h *Handler) UserSignIn(w http.ResponseWriter, r *http.Request) {
 		if errors.Is(err, entity.ErrUserNotFound) {
 			log.Error("User not found:", sl.Err(err))
 			render.Status(r, http.StatusNotFound)
-			render.JSON(w, r, response.Error("User not found..."))
+			render.JSON(w, r, response.Error(errors.New("User not found...")))
 			return
 		}
 
 		if errors.Is(err, entity.ErrUserInvalidPassword) {
 			log.Error("User password is invalid:", sl.Err(err))
 			render.Status(r, http.StatusMethodNotAllowed)
-			render.JSON(w, r, response.Error("Password is invalid..."))
+			render.JSON(w, r, response.Error(errors.New("Password is invalid...")))
 			return
 		}
 
 		log.Error("Request failed:", sl.Err(err))
 		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, response.Error("Bad request..."))
+		render.JSON(w, r, response.Error(response.ErrBadRequest))
 		return
 	}
 

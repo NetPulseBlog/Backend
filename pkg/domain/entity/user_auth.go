@@ -2,6 +2,7 @@ package entity
 
 import (
 	"app/pkg/lib/ers"
+	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 	"time"
@@ -16,6 +17,11 @@ const (
 const (
 	JWTAccessExpiresDaysInHours  = 24 * 7  // 7 days
 	JWTRefreshExpiresDaysInHours = 24 * 30 // 1 month
+)
+
+var (
+	ErrAccessTokenIsInvalid = errors.New("access token is invalid")
+	ErrAccessTokenIsExpired = errors.New("access token is expired")
 )
 
 type JwtClaims struct {

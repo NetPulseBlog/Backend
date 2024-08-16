@@ -1,6 +1,7 @@
 package response
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -9,7 +10,7 @@ import (
 
 type Response struct {
 	Status  string `json:"status"`
-	Error   string `json:"error,omitempty"`
+	Error   error  `json:"error,omitempty"`
 	Message string `json:"message,omitempty"`
 }
 
@@ -18,16 +19,22 @@ const (
 	StatusError = "Error"
 )
 
+var (
+	ErrInternalServerError = errors.New("internal error")
+	ErrUnknownId           = errors.New("unknown identifier")
+	ErrBadRequest          = errors.New("bad request")
+)
+
 func OK() Response {
 	return Response{
 		Status: StatusOK,
 	}
 }
 
-func Error(msg string) Response {
+func Error(err error) Response {
 	return Response{
 		Status: StatusError,
-		Error:  msg,
+		Error:  err,
 	}
 }
 
@@ -48,6 +55,6 @@ func ValidationError(errs validator.ValidationErrors) Response {
 
 	return Response{
 		Status: StatusError,
-		Error:  strings.Join(errMsgs, ", "),
+		Error:  errors.New(strings.Join(errMsgs, ", ")),
 	}
 }
