@@ -28,25 +28,30 @@ func (s *Auth) VerifyToken(rawAuthId, accessToken string) error {
 		return []byte(s.cfg.JWT.SecretKey), nil
 	})
 	if err != nil {
-		return ers.ThrowMessage(op, fmt.Errorf("access token is invalid"))
+		return ers.ThrowMessage(op, entity.ErrAccessTokenIsInvalid)
 	}
 
 	_, ok := parsedToken.Claims.(jwt.MapClaims)
 	if !ok {
-		return ers.ThrowMessage(op, fmt.Errorf("access token is invalid"))
+		return ers.ThrowMessage(op, entity.ErrAccessTokenIsInvalid)
 	}
 
 	authId, err := uuid.Parse(rawAuthId)
 	if err != nil {
 		return err
 	}
+
 	uAuth, err := s.authRepo.GetById(authId)
 	if err != nil {
 		return ers.ThrowMessage(op, err)
 	}
 
-	if uAuth.Token.RefreshExpiresAt.Unix() < time.Now().Unix() {
-		return ers.ThrowMessage(op, fmt.Errorf("access token is invalid"))
+	if uAuth.Token.Access != accessToken {
+		return ers.ThrowMessage(op, entity.ErrAccessTokenIsInvalid)
+	}
+
+	if uAuth.Token.AccessExpiresAt.Unix() < time.Now().Unix() {
+		return ers.ThrowMessage(op, entity.ErrAccessTokenIsExpired)
 	}
 
 	return nil
