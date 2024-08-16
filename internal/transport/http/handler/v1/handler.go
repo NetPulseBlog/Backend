@@ -77,7 +77,7 @@ func (h *Handler) InitRouter() http.Handler {
 
 	v1.With(authGuard).Route("/bookmark", func(r chi.Router) {
 		r.Get("/list", h.ListBookmarks)          // GET /bookmark/list
-		r.Post("/{id}/{type}", h.CreateBookmark) // POST /bookmark/{id}
+		r.Post("/{id}/{type}", h.CreateBookmark) // POST /bookmark/{id} // for found type see domain/user_bookmark.go
 		r.Delete("/{id}", h.DeleteBookmark)      // DELETE /bookmark/{id}
 	})
 

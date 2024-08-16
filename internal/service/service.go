@@ -11,16 +11,19 @@ type Deps struct {
 }
 
 type Services struct {
-	User User
-	Auth Auth
+	User     User
+	Auth     Auth
+	Bookmark Bookmark
 }
 
 func NewServices(deps Deps) *Services {
 	authService := NewAuthService(deps.Repos.Auth, deps.Repos.User, deps.Config)
 	userService := NewUserService(deps.Repos.User, authService)
+	bookmarkService := NewBookmarkService(deps.Repos.Bookmark)
 
 	return &Services{
-		User: *userService,
-		Auth: *authService,
+		User:     *userService,
+		Auth:     *authService,
+		Bookmark: *bookmarkService,
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"app/pkg/domain/entity"
 	"app/pkg/infra/logger/sl"
 	"errors"
+	"fmt"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"github.com/google/uuid"
@@ -26,7 +27,7 @@ func (h *Handler) UserAuthTokenRefresh(w http.ResponseWriter, r *http.Request) {
 	reqBodyError := render.DecodeJSON(r.Body, &body)
 	if reqBodyError != nil && !errors.Is(reqBodyError, io.EOF) {
 		log.Error("Failed to parse request body", sl.Err(reqBodyError))
-		render.JSON(w, r, response.Error("Invalid params!"))
+		render.JSON(w, r, response.Error(fmt.Errorf("Invalid params!")))
 		return
 	}
 
@@ -37,7 +38,7 @@ func (h *Handler) UserAuthTokenRefresh(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Error("Request failed:", sl.Err(err))
 			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, response.Error("Bad request..."))
+			render.JSON(w, r, response.Error(response.ErrBadRequest))
 			return
 		}
 
@@ -45,7 +46,7 @@ func (h *Handler) UserAuthTokenRefresh(w http.ResponseWriter, r *http.Request) {
 		if authIdErr != nil {
 			log.Error("Request failed:", sl.Err(err))
 			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, response.Error("Bad request..."))
+			render.JSON(w, r, response.Error(response.ErrBadRequest))
 			return
 		}
 
@@ -63,7 +64,7 @@ func (h *Handler) UserAuthTokenRefresh(w http.ResponseWriter, r *http.Request) {
 
 	if body.AuthId == uuid.Nil || body.RefreshToken == "" {
 		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, response.Error("Bad request! Fields authId, refreshToken is required!"))
+		render.JSON(w, r, response.Error(errors.New("Bad request! Fields authId, refreshToken is required!")))
 		return
 	}
 
@@ -71,7 +72,7 @@ func (h *Handler) UserAuthTokenRefresh(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error("Failed to parse request body", sl.Err(err))
 		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, response.Error("Refresh token is expired..."))
+		render.JSON(w, r, response.Error(errors.New("Refresh token is expired...")))
 		return
 	}
 	auth.AuthorizeByCookieLevel(&uAuth.Token, uAuth.Id, w)

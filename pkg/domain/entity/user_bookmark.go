@@ -13,10 +13,11 @@ const (
 )
 
 type UserBookmark struct {
-	UserId uuid.UUID `json:"user_id"`
-
+	UserId    uuid.UUID `json:"user_id"`
 	CreatedAt time.Time `json:"created_at"`
 
 	ResourceType BookmarkResourceType `json:"resource_type"`
 	ResourceId   uuid.UUID            `json:"resource_id"`
+
+	Content interface{} `json:"content,omitempty"`
 }
