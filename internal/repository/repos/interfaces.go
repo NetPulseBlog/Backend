@@ -28,5 +28,5 @@ type IUserRepo interface {
 type IBookmarkRepo interface {
 	GetListByResourceType(resourceType entity.BookmarkResourceType) (*[]interface{}, error)
 	Delete(id uuid.UUID) error
-	Create(resourceId uuid.UUID, resourceType entity.BookmarkResourceType) error
+	Create(bookmark entity.UserBookmark) error
 }

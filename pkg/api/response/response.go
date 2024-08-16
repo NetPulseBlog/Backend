@@ -21,6 +21,7 @@ const (
 
 var (
 	ErrInternalServerError = errors.New("internal error")
+	ErrUnknownId           = errors.New("unknown identifier")
 	ErrBadRequest          = errors.New("bad request")
 )
 

@@ -43,10 +43,19 @@ func (h *Handler) CreateBookmark(w http.ResponseWriter, r *http.Request) {
 		slog.String("op", op),
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
-	_ = log
-	id := chi.URLParam(r, "id")
-	resourceType := chi.URLParam(r, "type")
-	w.Write([]byte("Создана закладка с ID: " + id + " & Тип: " + resourceType))
+
+	id := chi.URLParam(r, "resource_id")
+	resourceType := chi.URLParam(r, "resource_type")
+	authId, _ := r.Cookie(entity.AuthIdFieldName) // TODO: get user id from context
+
+	err := h.services.Bookmark.Create(authId.Value, id, entity.BookmarkResourceType(resourceType))
+	if err != nil {
+		log.Error("Request failed:", sl.Err(err))
+		render.JSON(w, r, response.Error(response.ErrInternalServerError))
+		return
+	}
+
+	render.JSON(w, r, response.OK())
 }
 
 // DeleteBookmark Handler for deleting a bookmark.
@@ -58,6 +67,14 @@ func (h *Handler) DeleteBookmark(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 	_ = log
-	id := chi.URLParam(r, "id")
-	w.Write([]byte("Удалена закладка с ID: " + id))
+	id := chi.URLParam(r, "resource_id")
+
+	err := h.services.Bookmark.Delete(id)
+	if err != nil {
+		log.Error("Request failed:", sl.Err(err))
+		render.JSON(w, r, response.Error(response.ErrUnknownId))
+		return
+	}
+
+	render.JSON(w, r, response.OK())
 }

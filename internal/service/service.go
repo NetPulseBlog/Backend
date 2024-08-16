@@ -19,7 +19,7 @@ type Services struct {
 func NewServices(deps Deps) *Services {
 	authService := NewAuthService(deps.Repos.Auth, deps.Repos.User, deps.Config)
 	userService := NewUserService(deps.Repos.User, authService)
-	bookmarkService := NewBookmarkService(deps.Repos.Bookmark)
+	bookmarkService := NewBookmarkService(deps.Repos.Bookmark, deps.Repos.Auth)
 
 	return &Services{
 		User:     *userService,
