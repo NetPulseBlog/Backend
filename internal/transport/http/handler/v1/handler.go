@@ -1,7 +1,9 @@
 package v1
 
 import (
+	"app/internal/config"
 	"app/internal/service"
+	"app/pkg/auth"
 	"github.com/go-chi/chi/v5"
 	"log/slog"
 	"net/http"
@@ -9,18 +11,22 @@ import (
 
 type Handler struct {
 	log      *slog.Logger
+	cfg      *config.Config
 	services *service.Services
 }
 
-func NewHandler(log *slog.Logger, services *service.Services) *Handler {
+func NewHandler(log *slog.Logger, cfg *config.Config, services *service.Services) *Handler {
 	return &Handler{
 		log:      log,
+		cfg:      cfg,
 		services: services,
 	}
 }
 
 func (h *Handler) InitRouter() http.Handler {
 	v1 := chi.NewRouter()
+
+	authGuard := auth.CreateGuardMiddleware(h.services.Auth)
 
 	v1.Route("/user", func(r chi.Router) {
 		//TODO: ADD AUTH MIDDLEWARE WHERE IT NEED .WITH(AUTH_MIDDLEWARE)
@@ -31,7 +37,7 @@ func (h *Handler) InitRouter() http.Handler {
 			r.Post("/refresh-token", h.UserAuthTokenRefresh)
 		})
 		r.Put("/settings", h.UserSettingsUpdate)
-		r.Put("/", h.UserEdit)
+		r.With(authGuard).Put("/", h.UserEdit)
 
 		r.Route("/{id}", func(r chi.Router) {
 			r.Get("/", h.UserProfileByID)

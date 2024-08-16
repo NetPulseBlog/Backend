@@ -21,6 +21,37 @@ func NewAuthService(authRepo repos.IAuthRepo, userRepo repos.IUserRepo, cfg *con
 	return &Auth{authRepo: authRepo, userRepo: userRepo, cfg: cfg}
 }
 
+func (s *Auth) VerifyToken(rawAuthId, accessToken string) error {
+	const op = "service.Auth.VerifyToken"
+
+	parsedToken, err := jwt.Parse(accessToken, func(token *jwt.Token) (interface{}, error) {
+		return []byte(s.cfg.JWT.SecretKey), nil
+	})
+	if err != nil {
+		return ers.ThrowMessage(op, fmt.Errorf("access token is invalid"))
+	}
+
+	_, ok := parsedToken.Claims.(jwt.MapClaims)
+	if !ok {
+		return ers.ThrowMessage(op, fmt.Errorf("access token is invalid"))
+	}
+
+	authId, err := uuid.Parse(rawAuthId)
+	if err != nil {
+		return err
+	}
+	uAuth, err := s.authRepo.GetById(authId)
+	if err != nil {
+		return ers.ThrowMessage(op, err)
+	}
+
+	if uAuth.Token.RefreshExpiresAt.Unix() < time.Now().Unix() {
+		return ers.ThrowMessage(op, fmt.Errorf("access token is invalid"))
+	}
+
+	return nil
+}
+
 func (s *Auth) RefreshTokens(authId uuid.UUID, refreshToken string) (*entity.UserAuth, error) {
 	const op = "service.Auth.RefreshTokens"
 

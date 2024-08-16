@@ -43,7 +43,7 @@ func (app *App) New() {
 	})
 
 	// HTTP Handler
-	handlers := handler.NewTransportHandler(log, services)
+	handlers := handler.NewTransportHandler(log, cfg, services)
 
 	// HTTP Server
 	http.NewTransportServer(
