@@ -90,6 +90,24 @@ func (repo AuthRepo) DeleteItem(authId uuid.UUID) error {
 	return nil
 }
 
+func (repo AuthRepo) RemoveExistsForDevice(userId uuid.UUID, deviceName string) error {
+	const op = "postgresql.AuthRepo.RemoveExistsForDevice"
+
+	newUserStmt, err := repo.db.Prepare(
+		`DELETE FROM user_auth WHERE user_id = $1 AND device_name = $2`,
+	)
+	if err != nil {
+		return ers.ThrowMessage(op, err)
+	}
+
+	_, err = newUserStmt.Exec(userId, deviceName)
+	if err != nil {
+		return ers.ThrowMessage(op, err)
+	}
+
+	return nil
+}
+
 func (repo AuthRepo) Create(uAuth entity.UserAuth) error {
 	const op = "postgresql.AuthRepo.Create"
 

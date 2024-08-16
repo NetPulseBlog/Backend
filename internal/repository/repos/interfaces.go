@@ -15,6 +15,7 @@ type IAuthRepo interface {
 	Update(*entity.UserAuth) error
 	Create(entity.UserAuth) error
 	DeleteItem(uuid.UUID) error
+	RemoveExistsForDevice(uuid.UUID, string) error
 }
 
 type IUserRepo interface {

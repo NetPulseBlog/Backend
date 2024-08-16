@@ -109,8 +109,9 @@ func (s *Auth) Logout(authId uuid.UUID) error {
 func (s *Auth) Authorize(u *entity.User, deviceName string) (*entity.UserAuth, error) {
 	const op = "service.Auth.Authorize"
 
-	// find user auth by user_id and device_name
-	// remove exist auth by device
+	if err := s.authRepo.RemoveExistsForDevice(u.Id, deviceName); err != nil {
+		return nil, ers.ThrowMessage(op, err)
+	}
 
 	uAuth := entity.UserAuth{
 		Id:     uuid.New(),
