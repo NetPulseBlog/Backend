@@ -17,11 +17,11 @@ func NewBookmarkService(bookmarkRepo repos.IBookmarkRepo, authRepo repos.IAuthRe
 	return &Bookmark{bookmarkRepo: bookmarkRepo, authRepo: authRepo}
 }
 
-func (s Bookmark) GetList(resourceType entity.BookmarkResourceType) (*[]interface{}, error) {
-	return s.bookmarkRepo.GetListByResourceType(resourceType)
+func (s Bookmark) GetList(userId uuid.UUID, resourceType entity.BookmarkResourceType) (*[]interface{}, error) {
+	return s.bookmarkRepo.GetListByResourceType(userId, resourceType)
 }
 
-func (s Bookmark) Create(authId string, resourceId string, resourceType entity.BookmarkResourceType) error {
+func (s Bookmark) Create(authId uuid.UUID, resourceId string, resourceType entity.BookmarkResourceType) error {
 	const op = "service.Bookmark.Create"
 
 	resourceUuid, err := uuid.Parse(resourceId)
@@ -29,12 +29,7 @@ func (s Bookmark) Create(authId string, resourceId string, resourceType entity.B
 		return ers.ThrowMessage(op, err)
 	}
 
-	authUuid, err := uuid.Parse(authId)
-	if err != nil {
-		return ers.ThrowMessage(op, err)
-	}
-
-	uAuth, err := s.authRepo.GetById(authUuid)
+	uAuth, err := s.authRepo.GetById(authId)
 	if err != nil {
 		return ers.ThrowMessage(op, err)
 	}

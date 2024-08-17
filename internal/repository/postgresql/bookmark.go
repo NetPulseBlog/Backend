@@ -19,7 +19,7 @@ func NewBookmarkRepo(db *sql.DB) *BookmarkRepo {
 	}
 }
 
-func (repo BookmarkRepo) GetListByResourceType(resourceType entity.BookmarkResourceType) (*[]interface{}, error) {
+func (repo BookmarkRepo) GetListByResourceType(userId uuid.UUID, resourceType entity.BookmarkResourceType) (*[]interface{}, error) {
 	const op = "postgresql.BookmarkRepo.GetById"
 
 	sqlQuery := ""
@@ -32,7 +32,8 @@ func (repo BookmarkRepo) GetListByResourceType(resourceType entity.BookmarkResou
 				user_bookmark ub
 			JOIN article_comment ac ON ac.id = ub.resource_id
 			WHERE
-				ub.resource_type = $1
+				ub.resource_type = $1 AND
+				ub.user_id = $2
 		`
 	} else if resourceType == entity.BTArticle {
 		sqlQuery = `
@@ -42,7 +43,8 @@ func (repo BookmarkRepo) GetListByResourceType(resourceType entity.BookmarkResou
 				user_bookmark ub
 			JOIN article a ON a.id = ub.resource_id
 			WHERE
-				ub.resource_type = $1
+				ub.resource_type = $1 AND
+				ub.user_id = $2
 		`
 	}
 
@@ -50,7 +52,7 @@ func (repo BookmarkRepo) GetListByResourceType(resourceType entity.BookmarkResou
 		return nil, ers.ThrowMessage(op, fmt.Errorf("empty query"))
 	}
 
-	rows, err := repo.db.Query(sqlQuery, resourceType)
+	rows, err := repo.db.Query(sqlQuery, resourceType, userId)
 	if err != nil {
 		return nil, ers.ThrowMessage(op, err)
 	}
