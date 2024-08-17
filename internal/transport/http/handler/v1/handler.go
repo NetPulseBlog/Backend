@@ -41,9 +41,11 @@ func (h *Handler) InitRouter() http.Handler {
 		r.With(authGuard).Post("/subscribe/{id}", h.UserSubscribe)
 		r.With(authGuard).Post("/unsubscribe/{id}", h.UserUnsubscribe)
 
+		r.With(authGuard).Get("/", h.UserProfile)
 		r.Get("/{id}", h.UserProfileByID)
 
 		r.Get("/sub-sites", h.UserSubSites)
+
 		r.Route("/password", func(r chi.Router) {
 			r.Post("/request_change", h.UserPasswordRequestChange)
 			r.Post("/confirm_change", h.UserPasswordConfirmChange)

@@ -137,7 +137,7 @@ func (h *Handler) UserSignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) UserSettingsUpdate(w http.ResponseWriter, r *http.Request) {
-	// Implementation here
+
 }
 
 func (h *Handler) UserEdit(w http.ResponseWriter, r *http.Request) {
@@ -169,6 +169,33 @@ func (h *Handler) UserProfileByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.JSON(w, r, dto.NewPublicUserResponseType(u))
+}
+
+func (h *Handler) UserProfile(w http.ResponseWriter, r *http.Request) {
+	const op = "http.v1.User.UserProfile"
+
+	log := h.log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	authId, err := request.GetAuthId(r)
+	if err != nil {
+		log.Error("Request failed:", sl.Err(err))
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, response.Error(response.ErrInternalServerError))
+		return
+	}
+
+	user, err := h.services.User.GetUserByAuthId(authId)
+	if err != nil {
+		log.Error("Request failed:", sl.Err(err))
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, response.Error(response.ErrInternalServerError))
+		return
+	}
+
+	render.JSON(w, r, dto.NewPublicUserResponseType(user))
 }
 
 func (h *Handler) UserSubscribe(w http.ResponseWriter, r *http.Request) {
