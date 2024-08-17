@@ -26,7 +26,7 @@ func NewHandler(log *slog.Logger, cfg *config.Config, services *service.Services
 func (h *Handler) InitRouter() http.Handler {
 	v1 := chi.NewRouter()
 
-	authGuard := auth.CreateGuardMiddleware(h.services.Auth)
+	authGuard := auth.CreateGuardMiddleware(h.log, h.services.Auth)
 
 	v1.Route("/user", func(r chi.Router) {
 		r.Route("/auth", func(r chi.Router) {
@@ -34,13 +34,15 @@ func (h *Handler) InitRouter() http.Handler {
 			r.Post("/sign-in", h.UserSignIn)
 			r.Post("/refresh-token", h.UserAuthTokenRefresh)
 		})
+
 		r.With(authGuard).Put("/settings", h.UserSettingsUpdate)
 		r.With(authGuard).Put("/", h.UserEdit)
 
+		r.With(authGuard).Post("/subscribe/{id}", h.UserSubscribe)
+		r.With(authGuard).Post("/unsubscribe/{id}", h.UserUnsubscribe)
+
 		r.Route("/{id}", func(r chi.Router) {
 			r.Get("/", h.UserProfileByID)
-			r.With(authGuard).Post("/subscribe", h.UserSubscribe)
-			r.With(authGuard).Post("/unsubscribe", h.UserUnsubscribe)
 		})
 		r.Get("/sub-sites", h.UserSubSites)
 		r.Route("/password", func(r chi.Router) {

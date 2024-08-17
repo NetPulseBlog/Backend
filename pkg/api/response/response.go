@@ -10,7 +10,7 @@ import (
 
 type Response struct {
 	Status  string `json:"status"`
-	Error   error  `json:"error,omitempty"`
+	Error   string `json:"error,omitempty"`
 	Message string `json:"message,omitempty"`
 }
 
@@ -34,7 +34,7 @@ func OK() Response {
 func Error(err error) Response {
 	return Response{
 		Status: StatusError,
-		Error:  err,
+		Error:  err.Error(),
 	}
 }
 
@@ -55,6 +55,6 @@ func ValidationError(errs validator.ValidationErrors) Response {
 
 	return Response{
 		Status: StatusError,
-		Error:  errors.New(strings.Join(errMsgs, ", ")),
+		Error:  strings.Join(errMsgs, ", "),
 	}
 }

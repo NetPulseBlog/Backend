@@ -12,12 +12,57 @@ import (
 
 type User struct {
 	userRepo repos.IUserRepo
+	authRepo repos.IAuthRepo
 
 	authService *Auth
 }
 
-func NewUserService(userRepo repos.IUserRepo, authService *Auth) *User {
-	return &User{userRepo: userRepo, authService: authService}
+func NewUserService(userRepo repos.IUserRepo, authRepo repos.IAuthRepo, authService *Auth) *User {
+	return &User{userRepo: userRepo, authRepo: authRepo, authService: authService}
+}
+
+func (s *User) GetUserByAuthId(authId uuid.UUID) (*entity.User, error) {
+	const op = "service.User.GetUserByAuthId"
+
+	uAuth, err := s.authRepo.GetById(authId)
+	if err != nil {
+		return nil, ers.ThrowMessage(op, err)
+	}
+
+	u, err := s.userRepo.FindById(uAuth.UserId)
+	if err != nil {
+		return nil, ers.ThrowMessage(op, err)
+	}
+
+	return u, nil
+}
+
+func (s *User) Subscribe(ownerId, subscribedId uuid.UUID) error {
+	const op = "service.User.Subscribe"
+
+	uSub := entity.UserSubscription{
+		OwnerId:          ownerId,
+		SubscribedUserId: subscribedId,
+		CreatedAt:        time.Now().UTC(),
+	}
+
+	err := s.userRepo.Subscribe(uSub)
+	if err != nil {
+		return ers.ThrowMessage(op, err)
+	}
+
+	return nil
+}
+
+func (s *User) Unsubscribe(ownerId, unsubscribedId uuid.UUID) error {
+	const op = "service.User.Unsubscribe"
+
+	err := s.userRepo.Unsubscribe(ownerId, unsubscribedId)
+	if err != nil {
+		return ers.ThrowMessage(op, err)
+	}
+
+	return nil
 }
 
 func (s *User) SignUp(initialUserData dto.UserSignUpRequestDTO) (*entity.User, error) {

@@ -6,7 +6,8 @@ import (
 )
 
 type UserSubscription struct {
-	SubscriberId     uuid.UUID `json:"subscriber_id"`
+	OwnerId          uuid.UUID `json:"owner_id"`
 	SubscribedUserId uuid.UUID `json:"subscribed_user_id"`
-	CreatedAt        time.Time `json:"created_at"`
+
+	CreatedAt time.Time `json:"created_at"`
 }

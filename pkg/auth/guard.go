@@ -2,13 +2,19 @@ package auth
 
 import (
 	"app/internal/service"
+	"app/pkg/api/response"
 	"app/pkg/domain/entity"
+	"app/pkg/infra/logger/sl"
+	"app/pkg/lib/ers"
+	"log/slog"
 	"net/http"
 )
 
-func CreateGuardMiddleware(authService service.Auth) func(next http.Handler) http.Handler {
+func CreateGuardMiddleware(log *slog.Logger, authService service.Auth) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			const op = "auth.Guard"
+
 			accessToken, authId, err := findAuthData(r)
 			if err != nil || accessToken == "" || authId == "" {
 				http.Error(w, "Required auth fields is missing", http.StatusUnauthorized)
@@ -17,7 +23,8 @@ func CreateGuardMiddleware(authService service.Auth) func(next http.Handler) htt
 
 			err = authService.VerifyToken(authId, accessToken)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusUnauthorized)
+				log.Error("Request failed:", sl.Err(err))
+				http.Error(w, ers.ThrowMessage(op, response.ErrInternalServerError).Error(), http.StatusUnauthorized)
 				return
 			}
 
