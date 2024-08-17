@@ -24,6 +24,7 @@ type UserSignUpRequestDTO struct {
 }
 
 type PublicUserResponseType struct {
+	Id                 uuid.UUID              `json:"id"`
 	Name               string                 `json:"name"`
 	Email              string                 `json:"email"`
 	AccountType        entity.UserAccountType `json:"accountType"`
@@ -41,6 +42,7 @@ type PublicUserResponseType struct {
 func NewPublicUserResponseType(u *entity.User) *PublicUserResponseType {
 	pu := PublicUserResponseType{}
 
+	pu.Id = u.Id
 	pu.Name = u.Name
 	pu.Email = u.Email
 	pu.AccountType = u.AccountType

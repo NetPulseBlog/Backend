@@ -23,6 +23,9 @@ type IUserRepo interface {
 	FindById(uuid.UUID) (*entity.User, error)
 	FindByEmail(email string) (*entity.User, error)
 	CreatePersonal(newUser *entity.User) error
+
+	Subscribe(subscription entity.UserSubscription) error
+	Unsubscribe(ownerId, unsubscribedId uuid.UUID) error
 }
 
 type IBookmarkRepo interface {

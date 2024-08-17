@@ -66,12 +66,12 @@ CREATE TABLE "user_bookmark"
 
 CREATE TABLE "user_subscription"
 (
-    "subscriber_id"      uuid      NOT NULL,
+    "owner_id"           uuid      NOT NULL,
     "subscribed_user_id" uuid      NOT NULL,
 
     "created_at"         TIMESTAMP NOT NULL DEFAULT now(),
 
-    FOREIGN KEY ("subscriber_id") REFERENCES "user" ("id") ON DELETE CASCADE,
+    FOREIGN KEY ("owner_id") REFERENCES "user" ("id") ON DELETE CASCADE,
     FOREIGN KEY ("subscribed_user_id") REFERENCES "user" ("id") ON DELETE CASCADE
 );
 
