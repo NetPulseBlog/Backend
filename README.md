@@ -1,5 +1,37 @@
 # Blog Customer Backend
 
+## Todo list
+- [ ] User
+   - [ ] Getting a profile by ID
+   - [ ] Editing
+   - [ ] Update settings
+   - [x] Subscribe/unsubscribe
+   - [ ] Getting a list of subsite categories
+   - [ ] Request to change/confirm password
+- [ ] Article
+   - [ ] Create immediately
+   - [ ] Create as a draft
+   - [ ] Publication
+   - [ ] List
+   - [ ] Receiving by ID
+   - [ ] Subscription
+   - [ ] Unsubscribe
+   - [ ] Editing
+   - [ ] Comments
+      - [ ] Receipt
+      - [ ] Editing
+      - [ ] Creation
+      - [ ] Delete
+- [x] Bookmark
+   - [x] List
+   - [x] Creation
+   - [x] Delete
+- [x] Auth
+   - [x] Create authorization check middleware
+   - [x] Token refresh
+   - [x] Authorization
+   - [x] Registration
+
 ### Features that were not added in an earlier version (those marked were implemented)
 1. [ ] Moderator rights
 2. [ ] Reactions to posts
