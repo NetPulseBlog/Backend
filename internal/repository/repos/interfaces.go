@@ -13,6 +13,18 @@ type Repositories struct {
 }
 
 type IArticleRepo interface {
+	Create(article *entity.Article) error
+	Update(article *entity.Article) error
+	Delete(articleId string) error
+
+	GetById(articleId string) (*entity.Article, error)
+	GetList(listType string) (*[]entity.Article, error)
+	ChangeStatus(articleId string) error
+
+	CreateComment(comment *entity.ArticleComment) error
+	GetCommentList(articleId string) (*[]entity.ArticleComment, error)
+	UpdateComment(comment *entity.ArticleComment) error
+	DeleteComment(commentId string) error
 }
 
 type IAuthRepo interface {

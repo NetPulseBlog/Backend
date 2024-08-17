@@ -12,6 +12,12 @@ const (
 	ArticleDraftStatus     ArticleStatus = "draft"
 )
 
+const (
+	ArticlePopularListType = "a_popular_lt"
+	ArticleFreshListType   = "a_fresh_lt"
+	ArticleMyListType      = "a_my_lt"
+)
+
 type Article struct {
 	Id       uuid.UUID `json:"id"`
 	AuthorId uuid.UUID `json:"author_id"`
