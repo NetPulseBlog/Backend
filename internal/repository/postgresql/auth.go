@@ -4,7 +4,6 @@ import (
 	"app/pkg/domain/entity"
 	"app/pkg/lib/ers"
 	"database/sql"
-	"fmt"
 	"github.com/google/uuid"
 )
 
@@ -38,7 +37,7 @@ func (repo AuthRepo) GetById(authId uuid.UUID) (*entity.UserAuth, error) {
 		&fUserAuth.UpdatedAt,
 	)
 	if err != nil {
-		return &fUserAuth, ers.ThrowMessage(op, fmt.Errorf("auth row not found"))
+		return &fUserAuth, ers.ThrowMessage(op, err)
 	}
 
 	return &fUserAuth, nil

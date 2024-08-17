@@ -2,15 +2,18 @@ package v1
 
 import (
 	"app/internal/service/dto"
+	"app/pkg/api/request"
 	"app/pkg/api/response"
 	"app/pkg/auth"
 	"app/pkg/domain/entity"
 	"app/pkg/infra/logger/sl"
 	vrules "app/pkg/lib/v-rules"
 	"errors"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/mileusna/useragent"
 	"log/slog"
 	"net/http"
@@ -146,11 +149,77 @@ func (h *Handler) UserProfileByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) UserSubscribe(w http.ResponseWriter, r *http.Request) {
-	// Implementation here
+	const op = "http.v1.User.UserSubscribe"
+
+	log := h.log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	subscribedId, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		log.Error("Request failed:", sl.Err(err))
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, response.Error(response.ErrInternalServerError))
+		return
+	}
+
+	authId, err := request.GetAuthId(r)
+	if err != nil {
+		log.Error("Request failed:", sl.Err(err))
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, response.Error(response.ErrInternalServerError))
+		return
+	}
+
+	user, err := h.services.User.GetUserByAuthId(authId)
+
+	err = h.services.User.Subscribe(user.Id, subscribedId)
+	if err != nil {
+		log.Error("Request failed:", sl.Err(err))
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, response.Error(response.ErrInternalServerError))
+		return
+	}
+
+	render.JSON(w, r, response.OK())
 }
 
 func (h *Handler) UserUnsubscribe(w http.ResponseWriter, r *http.Request) {
-	// Implementation here
+	const op = "http.v1.User.UserUnsubscribe"
+
+	log := h.log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	unsubscribedId, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		log.Error("Request failed:", sl.Err(err))
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, response.Error(response.ErrBadRequest))
+		return
+	}
+
+	authId, err := request.GetAuthId(r)
+	if err != nil {
+		log.Error("Request failed:", sl.Err(err))
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, response.Error(response.ErrBadRequest))
+		return
+	}
+
+	user, err := h.services.User.GetUserByAuthId(authId)
+
+	err = h.services.User.Unsubscribe(user.Id, unsubscribedId)
+	if err != nil {
+		log.Error("Request failed:", sl.Err(err))
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, response.Error(response.ErrInternalServerError))
+		return
+	}
+
+	render.JSON(w, r, response.OK())
 }
 
 func (h *Handler) UserSubSites(w http.ResponseWriter, r *http.Request) {
