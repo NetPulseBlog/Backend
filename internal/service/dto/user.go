@@ -24,19 +24,18 @@ type UserSignUpRequestDTO struct {
 }
 
 type PublicUserResponseType struct {
-	Id                 uuid.UUID              `json:"id"`
-	Name               string                 `json:"name"`
-	Email              string                 `json:"email"`
-	AccountType        entity.UserAccountType `json:"accountType"`
-	Role               entity.UserRole        `json:"role"`
-	CreatedAt          time.Time              `json:"createdAt"`
-	UpdatedAt          time.Time              `json:"updatedAt"`
-	AvatarUrl          string                 `json:"avatarUrl"`
-	CoverUrl           string                 `json:"coverUrl"`
-	Description        string                 `json:"description"`
-	SubscribersCount   int                    `json:"subscribersCount"`
-	SubscriptionsCount int                    `json:"subscriptionsCount"`
-	Settings           entity.UserSettings    `json:"settings"`
+	Id                 uuid.UUID           `json:"id"`
+	Name               string              `json:"name"`
+	Email              string              `json:"email"`
+	Role               entity.UserRole     `json:"role"`
+	CreatedAt          time.Time           `json:"createdAt"`
+	UpdatedAt          time.Time           `json:"updatedAt"`
+	AvatarUrl          string              `json:"avatarUrl"`
+	CoverUrl           string              `json:"coverUrl"`
+	Description        string              `json:"description"`
+	SubscribersCount   int                 `json:"subscribersCount"`
+	SubscriptionsCount int                 `json:"subscriptionsCount"`
+	Settings           entity.UserSettings `json:"settings"`
 }
 
 func NewPublicUserResponseType(u *entity.User) *PublicUserResponseType {
@@ -45,7 +44,6 @@ func NewPublicUserResponseType(u *entity.User) *PublicUserResponseType {
 	pu.Id = u.Id
 	pu.Name = u.Name
 	pu.Email = u.Email
-	pu.AccountType = u.AccountType
 	pu.Role = u.Role
 	pu.CreatedAt = u.CreatedAt
 	pu.UpdatedAt = u.UpdatedAt

@@ -22,7 +22,7 @@ func NewUserService(userRepo repos.IUserRepo, authRepo repos.IAuthRepo, authServ
 }
 
 func (s *User) GetUser(userId uuid.UUID) (*entity.User, error) {
-	const op = "service.User.GetUserByAuthId"
+	const op = "service.User.GetUser"
 
 	u, err := s.userRepo.FindById(userId)
 	if err != nil {
@@ -30,6 +30,17 @@ func (s *User) GetUser(userId uuid.UUID) (*entity.User, error) {
 	}
 
 	return u, nil
+}
+
+func (s *User) GetSubSiteBarItems() (*[]entity.UserSubSiteBarItem, error) {
+	const op = "service.User.GetSubSiteBarItems"
+
+	items, err := s.userRepo.GetSubSiteBarItems()
+	if err != nil {
+		return nil, ers.ThrowMessage(op, err)
+	}
+
+	return items, nil
 }
 
 func (s *User) GetUserByAuthId(authId uuid.UUID) (*entity.User, error) {
@@ -91,8 +102,7 @@ func (s *User) SignUp(initialUserData dto.UserSignUpRequestDTO) (*entity.User, e
 		Description: "",
 		Email:       strings.TrimSpace(initialUserData.Email),
 
-		Role:        entity.UserRoleCustomer,
-		AccountType: entity.UserAccountTypePersonal,
+		Role: entity.UserRoleCustomer,
 
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),

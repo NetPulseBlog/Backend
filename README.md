@@ -6,7 +6,7 @@
    - [ ] Editing
    - [ ] Update settings
    - [x] Subscribe/unsubscribe
-   - [ ] Getting a list of subsite categories
+   - [x] Getting a list of subsite categories
    - [ ] Request to change/confirm password
 - [ ] Article
    - [ ] Create immediately

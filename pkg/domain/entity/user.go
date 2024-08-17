@@ -11,13 +11,7 @@ import (
 	"time"
 )
 
-type UserAccountType string
 type UserRole string
-
-const (
-	UserAccountTypePersonal      UserAccountType = "personal"
-	UserAccountTypeSystemSubSite UserAccountType = "system_sub_site"
-)
 
 const (
 	UserRoleCustomer  UserRole = "customer"
@@ -31,11 +25,10 @@ var (
 )
 
 type User struct {
-	Id                uuid.UUID       `json:"id"`
-	Email             string          `json:"email"`
-	EncryptedPassword string          `json:"encrypted_password"`
-	Salt              string          `json:"salt"`
-	AccountType       UserAccountType `json:"account_type"`
+	Id                uuid.UUID `json:"id"`
+	Email             string    `json:"email"`
+	EncryptedPassword string    `json:"encrypted_password"`
+	Salt              string    `json:"salt"`
 
 	Role UserRole `json:"role"`
 
@@ -52,6 +45,12 @@ type User struct {
 	SubscriptionsCount int `json:"subscriptions_count"`
 
 	Settings UserSettings `json:"user_settings"`
+}
+
+type UserSubSiteBarItem struct {
+	Id        uuid.UUID `json:"id"`
+	AvatarUrl string    `json:"avatar_url"`
+	Name      string    `json:"name"`
 }
 
 func (u *User) CreatePassword(rawPassword string) error {

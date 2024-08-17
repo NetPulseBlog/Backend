@@ -246,7 +246,22 @@ func (h *Handler) UserUnsubscribe(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) UserSubSites(w http.ResponseWriter, r *http.Request) {
-	// Implementation here
+	const op = "http.v1.User.UserSubSites"
+
+	log := h.log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	subSites, err := h.services.User.GetSubSiteBarItems()
+	if err != nil {
+		log.Error("Request failed:", sl.Err(err))
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, response.Error(response.ErrInternalServerError))
+		return
+	}
+
+	render.JSON(w, r, subSites)
 }
 
 func (h *Handler) UserPasswordRequestChange(w http.ResponseWriter, r *http.Request) {

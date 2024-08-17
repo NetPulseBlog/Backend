@@ -20,6 +20,8 @@ type IAuthRepo interface {
 }
 
 type IUserRepo interface {
+	GetSubSiteBarItems() (*[]entity.UserSubSiteBarItem, error)
+
 	FindById(uuid.UUID) (*entity.User, error)
 	FindByEmail(email string) (*entity.User, error)
 	CreatePersonal(newUser *entity.User) error

@@ -1,23 +1,21 @@
-CREATE TYPE user_account_type_enum as ENUM ('personal', 'system_sub_site');
 CREATE TYPE user_role_enum as ENUM ('customer', 'sub_site', 'administrator', 'moderator');
 
 CREATE TABLE "user"
 (
-    "id"                 uuid PRIMARY KEY       NOT NULL,
-    "encrypted_password" character varying      NOT NULL,
-    "salt"               character varying      NOT NULL,
+    "id"                 uuid PRIMARY KEY  NOT NULL,
+    "encrypted_password" character varying NOT NULL,
+    "salt"               character varying NOT NULL,
 
-    "created_at"         TIMESTAMP              NOT NULL DEFAULT now(),
-    "updated_at"         TIMESTAMP                       DEFAULT now(),
+    "created_at"         TIMESTAMP         NOT NULL DEFAULT now(),
+    "updated_at"         TIMESTAMP                  DEFAULT now(),
 
-    "account_type"       user_account_type_enum NOT NULL DEFAULT 'personal',
-    "role"               user_role_enum         NOT NULL DEFAULT 'customer',
+    "role"               user_role_enum    NOT NULL DEFAULT 'customer',
     "email"              character varying UNIQUE,
-    "name"               character varying               DEFAULT null,
-    "description"        character varying               DEFAULT null,
+    "name"               character varying          DEFAULT null,
+    "description"        character varying          DEFAULT null,
 
-    "avatar_url"         character varying               DEFAULT null,
-    "cover_url"          character varying               DEFAULT null
+    "avatar_url"         character varying          DEFAULT null,
+    "cover_url"          character varying          DEFAULT null
 );
 
 CREATE TYPE news_line_default_enum as ENUM ('nld_popular', 'nld_fresh');

@@ -5,6 +5,7 @@ import (
 	"app/pkg/lib/ers"
 	"database/sql"
 	"github.com/google/uuid"
+	"log"
 )
 
 type UserRepo struct {
@@ -34,6 +35,7 @@ func (repo UserRepo) Subscribe(subscription entity.UserSubscription) error {
 
 	return nil
 }
+
 func (repo UserRepo) Unsubscribe(ownerId, unsubscribedId uuid.UUID) error {
 	const op = "postgresql.UserRepo.Unsubscribe"
 
@@ -50,6 +52,37 @@ func (repo UserRepo) Unsubscribe(ownerId, unsubscribedId uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func (repo UserRepo) GetSubSiteBarItems() (*[]entity.UserSubSiteBarItem, error) {
+	const op = "postgresql.UserRepo.GetSubSiteBarItems"
+
+	rows, err := repo.db.Query(`SELECT id, avatar_url, name FROM "user" WHERE role = 'sub_site'`)
+	if err != nil {
+		return nil, ers.ThrowMessage(op, err)
+	}
+
+	defer rows.Close()
+
+	var items []entity.UserSubSiteBarItem
+
+	for rows.Next() {
+		var row entity.UserSubSiteBarItem
+		err = rows.Scan(&row.Id, &row.AvatarUrl, &row.Name)
+
+		if err != nil {
+			log.Println(err)
+			return nil, ers.ThrowMessage(op, err)
+		}
+
+		items = append(items, row)
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Println(err)
+	}
+
+	return &items, nil
 }
 
 func (repo UserRepo) FindById(id uuid.UUID) (*entity.User, error) {
@@ -77,7 +110,6 @@ func (repo UserRepo) FindById(id uuid.UUID) (*entity.User, error) {
 		&fUser.Salt,
 		&fUser.CreatedAt,
 		&fUser.UpdatedAt,
-		&fUser.AccountType,
 		&fUser.Role,
 		&fUser.Email,
 		&fUser.Name,
@@ -124,7 +156,6 @@ func (repo UserRepo) FindByEmail(email string) (*entity.User, error) {
 		&fUser.Salt,
 		&fUser.CreatedAt,
 		&fUser.UpdatedAt,
-		&fUser.AccountType,
 		&fUser.Role,
 		&fUser.Email,
 		&fUser.Name,
@@ -155,7 +186,7 @@ func (repo UserRepo) CreatePersonal(newUser *entity.User) error {
 	}
 
 	newUserStmt, err := tx.Prepare(
-		`INSERT INTO "user"(id, encrypted_password, salt, created_at, updated_at, account_type, role, email, name, description, avatar_url, cover_url) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+		`INSERT INTO "user"(id, encrypted_password, salt, created_at, updated_at, role, email, name, description, avatar_url, cover_url) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
 	)
 	if err != nil {
 		return ers.ThrowMessage(op, err)
@@ -167,7 +198,6 @@ func (repo UserRepo) CreatePersonal(newUser *entity.User) error {
 		newUser.Salt,
 		newUser.CreatedAt,
 		newUser.UpdatedAt,
-		newUser.AccountType,
 		newUser.Role,
 		newUser.Email,
 		newUser.Name,
