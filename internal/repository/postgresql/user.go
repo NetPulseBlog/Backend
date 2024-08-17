@@ -131,6 +131,54 @@ func (repo UserRepo) FindById(id uuid.UUID) (*entity.User, error) {
 	return &fUser, nil
 }
 
+func (repo UserRepo) GetByAuthId(id uuid.UUID) (*entity.User, error) {
+	const op = "postgresql.UserRepo.GetByAuthId"
+
+	fUser := entity.User{
+		Settings: entity.UserSettings{},
+	}
+
+	row := repo.db.QueryRow(`
+	   SELECT 
+			u.*,
+			(SELECT COUNT(*) FROM user_subscription WHERE owner_id = u.id) AS subscriptions_count,
+			(SELECT COUNT(*) FROM user_subscription WHERE subscribed_user_id = u.id) AS subscribers_count,
+			us.news_line_default, us.news_line_sort
+		FROM 
+			"user" u
+		INNER JOIN 
+			"user_settings" us ON u.id = us.user_id
+		INNER JOIN 
+			"user_auth" ua ON u.id = ua.user_id
+		WHERE 
+			ua.id = $1
+    `, id)
+	err := row.Scan(
+		&fUser.Id,
+		&fUser.EncryptedPassword,
+		&fUser.Salt,
+		&fUser.CreatedAt,
+		&fUser.UpdatedAt,
+		&fUser.Role,
+		&fUser.Email,
+		&fUser.Name,
+		&fUser.Description,
+		&fUser.AvatarUrl,
+		&fUser.CoverUrl,
+		&fUser.SubscriptionsCount,
+		&fUser.SubscribersCount,
+		&fUser.Settings.NewsLineDefault,
+		&fUser.Settings.NewsLineSort,
+	)
+	if err != nil {
+		return &fUser, ers.ThrowMessage(op, err)
+	}
+
+	fUser.Settings.UserId = fUser.Id
+
+	return &fUser, nil
+}
+
 func (repo UserRepo) FindByEmail(email string) (*entity.User, error) {
 	const op = "postgresql.UserRepo.FindByEmail"
 

@@ -46,12 +46,7 @@ func (s *User) GetSubSiteBarItems() (*[]entity.UserSubSiteBarItem, error) {
 func (s *User) GetUserByAuthId(authId uuid.UUID) (*entity.User, error) {
 	const op = "service.User.GetUserByAuthId"
 
-	uAuth, err := s.authRepo.GetById(authId)
-	if err != nil {
-		return nil, ers.ThrowMessage(op, err)
-	}
-
-	u, err := s.userRepo.FindById(uAuth.UserId)
+	u, err := s.userRepo.GetByAuthId(authId)
 	if err != nil {
 		return nil, ers.ThrowMessage(op, err)
 	}
