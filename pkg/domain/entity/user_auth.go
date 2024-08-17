@@ -15,6 +15,11 @@ const (
 )
 
 const (
+	AccessTokenHeaderFieldName = "x-access-token"
+	AuthIdHeaderFieldName      = "x-auth-id"
+)
+
+const (
 	JWTAccessExpiresDaysInHours  = 24 * 7  // 7 days
 	JWTRefreshExpiresDaysInHours = 24 * 30 // 1 month
 )
