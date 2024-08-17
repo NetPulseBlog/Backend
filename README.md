@@ -4,7 +4,7 @@
 - [ ] User
    - [x] Getting a profile by ID
    - [ ] Editing
-   - [ ] Update settings
+   - [x] Update settings
    - [x] Subscribe/unsubscribe
    - [x] Getting a list of subsite categories
    - [ ] Request to change/confirm password
