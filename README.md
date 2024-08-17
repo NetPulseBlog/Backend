@@ -2,7 +2,7 @@
 
 ## Todo list
 - [ ] User
-   - [ ] Getting a profile by ID
+   - [x] Getting a profile by ID
    - [ ] Editing
    - [ ] Update settings
    - [x] Subscribe/unsubscribe

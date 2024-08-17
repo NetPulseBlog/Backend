@@ -145,7 +145,30 @@ func (h *Handler) UserEdit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) UserProfileByID(w http.ResponseWriter, r *http.Request) {
-	// Implementation here
+	const op = "http.v1.User.UserProfileByID"
+
+	log := h.log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	userId, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		log.Error("Request failed:", sl.Err(err))
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, response.Error(response.ErrInternalServerError))
+		return
+	}
+
+	u, err := h.services.User.GetUser(userId)
+	if err != nil {
+		log.Error("Request failed:", sl.Err(err))
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, response.Error(response.ErrInternalServerError))
+		return
+	}
+
+	render.JSON(w, r, dto.NewPublicUserResponseType(u))
 }
 
 func (h *Handler) UserSubscribe(w http.ResponseWriter, r *http.Request) {

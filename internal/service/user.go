@@ -21,6 +21,17 @@ func NewUserService(userRepo repos.IUserRepo, authRepo repos.IAuthRepo, authServ
 	return &User{userRepo: userRepo, authRepo: authRepo, authService: authService}
 }
 
+func (s *User) GetUser(userId uuid.UUID) (*entity.User, error) {
+	const op = "service.User.GetUserByAuthId"
+
+	u, err := s.userRepo.FindById(userId)
+	if err != nil {
+		return nil, ers.ThrowMessage(op, err)
+	}
+
+	return u, nil
+}
+
 func (s *User) GetUserByAuthId(authId uuid.UUID) (*entity.User, error) {
 	const op = "service.User.GetUserByAuthId"
 
