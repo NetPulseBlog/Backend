@@ -54,6 +54,23 @@ func (s *User) GetUserByAuthId(authId uuid.UUID) (*entity.User, error) {
 	return u, nil
 }
 
+func (s *User) UpdateSettings(reqBody dto.UpdateUserSettingsRequestDTO, userId uuid.UUID) (*entity.UserSettings, error) {
+	const op = "service.User.UpdateSettings"
+
+	us := entity.UserSettings{
+		UserId:          userId,
+		NewsLineDefault: reqBody.NewsLineDefault,
+		NewsLineSort:    reqBody.NewsLineSort,
+	}
+
+	err := s.userRepo.UpdateSettings(&us)
+	if err != nil {
+		return nil, ers.ThrowMessage(op, err)
+	}
+
+	return &us, nil
+}
+
 func (s *User) Subscribe(ownerId, subscribedId uuid.UUID) error {
 	const op = "service.User.Subscribe"
 

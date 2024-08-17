@@ -23,22 +23,27 @@ type UserSignUpRequestDTO struct {
 	Password string `json:"password" validate:"required,password"`
 }
 
-type PublicUserResponseType struct {
-	Id                 uuid.UUID           `json:"id"`
-	Name               string              `json:"name"`
-	Email              string              `json:"email"`
-	Role               entity.UserRole     `json:"role"`
-	CreatedAt          time.Time           `json:"createdAt"`
-	UpdatedAt          time.Time           `json:"updatedAt"`
-	AvatarUrl          string              `json:"avatarUrl"`
-	CoverUrl           string              `json:"coverUrl"`
-	Description        string              `json:"description"`
-	SubscribersCount   int                 `json:"subscribersCount"`
-	SubscriptionsCount int                 `json:"subscriptionsCount"`
-	Settings           entity.UserSettings `json:"settings"`
+type PublicUserSettingsResponseType struct {
+	NewsLineDefault entity.NewsLineDefaultType `json:"newsLineDefault"`
+	NewsLineSort    entity.NewsLineSortType    `json:"newsLineSort"`
 }
 
-func NewPublicUserResponseType(u *entity.User) *PublicUserResponseType {
+type PublicUserResponseType struct {
+	Id                 uuid.UUID                      `json:"id"`
+	Name               string                         `json:"name"`
+	Email              string                         `json:"email"`
+	Role               entity.UserRole                `json:"role"`
+	CreatedAt          time.Time                      `json:"createdAt"`
+	UpdatedAt          time.Time                      `json:"updatedAt"`
+	AvatarUrl          string                         `json:"avatarUrl"`
+	CoverUrl           string                         `json:"coverUrl"`
+	Description        string                         `json:"description"`
+	SubscribersCount   int                            `json:"subscribersCount"`
+	SubscriptionsCount int                            `json:"subscriptionsCount"`
+	Settings           PublicUserSettingsResponseType `json:"settings"`
+}
+
+func MapToPublicUser(u *entity.User) *PublicUserResponseType {
 	pu := PublicUserResponseType{}
 
 	pu.Id = u.Id
@@ -52,7 +57,8 @@ func NewPublicUserResponseType(u *entity.User) *PublicUserResponseType {
 	pu.Description = u.Description
 	pu.SubscribersCount = u.SubscribersCount
 	pu.SubscriptionsCount = u.SubscriptionsCount
-	pu.Settings = u.Settings
+	pu.Settings.NewsLineDefault = u.Settings.NewsLineDefault
+	pu.Settings.NewsLineSort = u.Settings.NewsLineSort
 
 	return &pu
 }
@@ -68,4 +74,9 @@ type UserRefreshTokensResponseDTO struct {
 	Status string            `json:"status"`
 	Token  *entity.AuthToken `json:"token"`
 	AuthId string            `json:"authId"`
+}
+
+type UpdateUserSettingsRequestDTO struct {
+	NewsLineDefault entity.NewsLineDefaultType `json:"newsLineDefault" validate:"required,nldefault"`
+	NewsLineSort    entity.NewsLineSortType    `json:"newsLineSort" validate:"required,nlsort"`
 }

@@ -7,7 +7,6 @@ import (
 	"app/pkg/auth"
 	"app/pkg/domain/entity"
 	"app/pkg/infra/logger/sl"
-	vrules "app/pkg/lib/v-rules"
 	"errors"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -37,7 +36,7 @@ func (h *Handler) UserSignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	validate := validator.New()
-	validate.RegisterValidation("password", vrules.CustomPasswordValidation)
+	validate.RegisterValidation(entity.PasswordValidationField, entity.PasswordValidator)
 
 	if err := validate.Struct(reqBody); err != nil {
 		var validateErr validator.ValidationErrors
@@ -68,7 +67,7 @@ func (h *Handler) UserSignUp(w http.ResponseWriter, r *http.Request) {
 
 	render.JSON(w, r, dto.UserSignResponseDTO{
 		Status: response.StatusOK,
-		User:   dto.NewPublicUserResponseType(u),
+		User:   dto.MapToPublicUser(u),
 		Token:  &uAuth.Token,
 		AuthId: uAuth.Id.String(),
 	})
@@ -92,7 +91,7 @@ func (h *Handler) UserSignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	validate := validator.New()
-	validate.RegisterValidation("password", vrules.CustomPasswordValidation)
+	validate.RegisterValidation(entity.PasswordValidationField, entity.PasswordValidator)
 
 	if err := validate.Struct(reqBody); err != nil {
 		var validateErr validator.ValidationErrors
@@ -130,14 +129,69 @@ func (h *Handler) UserSignIn(w http.ResponseWriter, r *http.Request) {
 
 	render.JSON(w, r, dto.UserSignResponseDTO{
 		Status: response.StatusOK,
-		User:   dto.NewPublicUserResponseType(u),
+		User:   dto.MapToPublicUser(u),
 		Token:  &uAuth.Token,
 		AuthId: uAuth.Id.String(),
 	})
 }
 
 func (h *Handler) UserSettingsUpdate(w http.ResponseWriter, r *http.Request) {
+	const op = "http.v1.User.UserProfile"
 
+	log := h.log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	var reqBody dto.UpdateUserSettingsRequestDTO
+	err := render.DecodeJSON(r.Body, &reqBody)
+	if err != nil {
+		log.Error("Failed to parse request body", sl.Err(err))
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, response.Error(response.ErrBadRequest))
+		return
+	}
+
+	validate := validator.New()
+	validate.RegisterValidation(entity.NLDefaultValidationField, entity.NLDefaultValidator)
+	validate.RegisterValidation(entity.NLSortValidationField, entity.NLSortValidator)
+	if err := validate.Struct(reqBody); err != nil {
+		var validateErr validator.ValidationErrors
+		errors.As(err, &validateErr)
+
+		log.Error("Invalid request", sl.Err(err))
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, response.ValidationError(validateErr))
+		return
+	}
+
+	authId, err := request.GetAuthId(r) // todo: move to global context
+	if err != nil {
+		log.Error("Request failed:", sl.Err(err))
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, response.Error(response.ErrInternalServerError))
+		return
+	}
+
+	user, err := h.services.User.GetUserByAuthId(authId)
+	if err != nil {
+		log.Error("Request failed:", sl.Err(err))
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, response.Error(response.ErrInternalServerError))
+		return
+	}
+
+	us, err := h.services.User.UpdateSettings(reqBody, user.Id)
+	if err != nil {
+		log.Error("Request failed:", sl.Err(err))
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, response.Error(response.ErrInternalServerError))
+		return
+	}
+
+	user.Settings = *us
+
+	render.JSON(w, r, dto.MapToPublicUser(user))
 }
 
 func (h *Handler) UserEdit(w http.ResponseWriter, r *http.Request) {
@@ -168,7 +222,7 @@ func (h *Handler) UserProfileByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render.JSON(w, r, dto.NewPublicUserResponseType(u))
+	render.JSON(w, r, dto.MapToPublicUser(u))
 }
 
 func (h *Handler) UserProfile(w http.ResponseWriter, r *http.Request) {
@@ -195,7 +249,7 @@ func (h *Handler) UserProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render.JSON(w, r, dto.NewPublicUserResponseType(user))
+	render.JSON(w, r, dto.MapToPublicUser(user))
 }
 
 func (h *Handler) UserSubscribe(w http.ResponseWriter, r *http.Request) {

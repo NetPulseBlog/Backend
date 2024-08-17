@@ -5,8 +5,10 @@ import (
 	"app/pkg/lib/password"
 	"errors"
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -79,4 +81,29 @@ func (u *User) ComparePassword(rawPassword string) (bool, error) {
 
 	err := bcrypt.CompareHashAndPassword([]byte(u.EncryptedPassword), []byte(rawPassword+u.Salt))
 	return err == nil, ers.ThrowMessage(op, err)
+}
+
+const PasswordValidationField = "password"
+
+func PasswordValidator(fl validator.FieldLevel) bool {
+	pswd := fl.Field().String()
+
+	// Проверка на длину пароля
+	if len(pswd) < 8 {
+		return false
+	}
+
+	// Регулярное выражение для проверки наличия хотя бы одной цифры
+	hasNumber := regexp.MustCompile(`[0-9]`).MatchString(pswd)
+	if !hasNumber {
+		return false
+	}
+
+	// Регулярное выражение для проверки наличия хотя бы одной заглавной буквы
+	hasUppercase := regexp.MustCompile(`[A-Z]`).MatchString(pswd)
+	if !hasUppercase {
+		return false
+	}
+
+	return true
 }

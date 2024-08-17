@@ -21,14 +21,14 @@ func NewUserRepo(db *sql.DB) *UserRepo {
 func (repo UserRepo) Subscribe(subscription entity.UserSubscription) error {
 	const op = "postgresql.UserRepo.Subscribe"
 
-	newUserStmt, err := repo.db.Prepare(
+	subscribeStmt, err := repo.db.Prepare(
 		`INSERT INTO user_subscription(owner_id, subscribed_user_id, created_at) VALUES ($1, $2, $3)`,
 	)
 	if err != nil {
 		return ers.ThrowMessage(op, err)
 	}
 
-	_, err = newUserStmt.Exec(subscription.OwnerId, subscription.SubscribedUserId, subscription.CreatedAt)
+	_, err = subscribeStmt.Exec(subscription.OwnerId, subscription.SubscribedUserId, subscription.CreatedAt)
 	if err != nil {
 		return ers.ThrowMessage(op, err)
 	}
@@ -39,14 +39,14 @@ func (repo UserRepo) Subscribe(subscription entity.UserSubscription) error {
 func (repo UserRepo) Unsubscribe(ownerId, unsubscribedId uuid.UUID) error {
 	const op = "postgresql.UserRepo.Unsubscribe"
 
-	newUserStmt, err := repo.db.Prepare(
+	unsubscribeStmt, err := repo.db.Prepare(
 		`DELETE FROM user_subscription WHERE owner_id = $1 AND subscribed_user_id = $2`,
 	)
 	if err != nil {
 		return ers.ThrowMessage(op, err)
 	}
 
-	_, err = newUserStmt.Exec(ownerId, unsubscribedId)
+	_, err = unsubscribeStmt.Exec(ownerId, unsubscribedId)
 	if err != nil {
 		return ers.ThrowMessage(op, err)
 	}
@@ -131,6 +131,28 @@ func (repo UserRepo) FindById(id uuid.UUID) (*entity.User, error) {
 	return &fUser, nil
 }
 
+func (repo UserRepo) UpdateSettings(uSettings *entity.UserSettings) error {
+	const op = "postgresql.UserRepo.Subscribe"
+
+	updateSettingsStmt, err := repo.db.Prepare(
+		`UPDATE user_settings SET news_line_default = $2, news_line_sort = $3 WHERE user_id = $1`,
+	)
+	if err != nil {
+		return ers.ThrowMessage(op, err)
+	}
+
+	_, err = updateSettingsStmt.Exec(
+		uSettings.UserId,
+		uSettings.NewsLineDefault,
+		uSettings.NewsLineSort,
+	)
+	if err != nil {
+		return ers.ThrowMessage(op, err)
+	}
+
+	return nil
+}
+
 func (repo UserRepo) GetByAuthId(id uuid.UUID) (*entity.User, error) {
 	const op = "postgresql.UserRepo.GetByAuthId"
 
@@ -182,8 +204,9 @@ func (repo UserRepo) GetByAuthId(id uuid.UUID) (*entity.User, error) {
 func (repo UserRepo) FindByEmail(email string) (*entity.User, error) {
 	const op = "postgresql.UserRepo.FindByEmail"
 
-	fUserSettings := entity.UserSettings{}
-	fUser := entity.User{}
+	fUser := entity.User{
+		Settings: entity.UserSettings{},
+	}
 
 	row := repo.db.QueryRow(`
 	   SELECT 
@@ -212,15 +235,14 @@ func (repo UserRepo) FindByEmail(email string) (*entity.User, error) {
 		&fUser.CoverUrl,
 		&fUser.SubscriptionsCount,
 		&fUser.SubscribersCount,
-		&fUserSettings.NewsLineDefault,
-		&fUserSettings.NewsLineSort,
+		&fUser.Settings.NewsLineDefault,
+		&fUser.Settings.NewsLineSort,
 	)
 	if err != nil {
 		return &fUser, ers.ThrowMessage(op, err)
 	}
 
-	fUserSettings.UserId = fUser.Id
-	fUser.Settings = fUserSettings
+	fUser.Settings.UserId = fUser.Id
 
 	return &fUser, nil
 }
