@@ -9,6 +9,10 @@ type Repositories struct {
 	Auth     IAuthRepo
 	User     IUserRepo
 	Bookmark IBookmarkRepo
+	Article  IArticleRepo
+}
+
+type IArticleRepo interface {
 }
 
 type IAuthRepo interface {
