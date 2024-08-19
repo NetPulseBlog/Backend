@@ -20,6 +20,7 @@ const (
 )
 
 var (
+	ErrValidationFailed    = errors.New("validation failed")
 	ErrInternalServerError = errors.New("internal error")
 	ErrUnknownId           = errors.New("unknown identifier")
 	ErrBadRequest          = errors.New("bad request")

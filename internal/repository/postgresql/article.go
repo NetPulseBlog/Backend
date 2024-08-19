@@ -2,6 +2,7 @@ package postgresql
 
 import (
 	"app/pkg/domain/entity"
+	"app/pkg/lib/ers"
 	"database/sql"
 )
 
@@ -24,7 +25,21 @@ func (repo ArticleRepo) Update(article *entity.Article) error {
 }
 
 func (repo ArticleRepo) Delete(articleId string) error {
-	panic("IMPLEMENT ME")
+	const op = "postgresql.Article.Delete"
+
+	deleteArticleStmt, err := repo.db.Prepare(
+		`DELETE FROM article WHERE id = $1`,
+	)
+	if err != nil {
+		return ers.ThrowMessage(op, err)
+	}
+
+	_, err = deleteArticleStmt.Exec(articleId)
+	if err != nil {
+		return ers.ThrowMessage(op, err)
+	}
+
+	return nil
 }
 
 func (repo ArticleRepo) GetById(articleId string) (*entity.Article, error) {

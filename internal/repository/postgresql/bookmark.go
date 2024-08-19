@@ -83,14 +83,14 @@ func (repo BookmarkRepo) GetListByResourceType(userId uuid.UUID, resourceType en
 func (repo BookmarkRepo) Delete(resourceId uuid.UUID) error {
 	const op = "postgresql.BookmarkRepo.Delete"
 
-	newUserStmt, err := repo.db.Prepare(
+	deleteBookmarkStmt, err := repo.db.Prepare(
 		`DELETE FROM user_bookmark WHERE resource_id = $1`,
 	)
 	if err != nil {
 		return ers.ThrowMessage(op, err)
 	}
 
-	_, err = newUserStmt.Exec(resourceId)
+	_, err = deleteBookmarkStmt.Exec(resourceId)
 	if err != nil {
 		return ers.ThrowMessage(op, err)
 	}
@@ -101,14 +101,14 @@ func (repo BookmarkRepo) Delete(resourceId uuid.UUID) error {
 func (repo BookmarkRepo) Create(bookmark entity.UserBookmark) error {
 	const op = "postgresql.BookmarkRepo.Create"
 
-	newUserStmt, err := repo.db.Prepare(
+	createBookmarkStmt, err := repo.db.Prepare(
 		`INSERT INTO "user_bookmark" (user_id, resource_id, resource_type, created_at) VALUES ($1, $2, $3, $4)`,
 	)
 	if err != nil {
 		return ers.ThrowMessage(op, err)
 	}
 
-	_, err = newUserStmt.Exec(
+	_, err = createBookmarkStmt.Exec(
 		bookmark.UserId,
 		bookmark.ResourceId,
 		bookmark.ResourceType,

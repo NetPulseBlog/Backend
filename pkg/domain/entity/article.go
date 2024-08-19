@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"time"
 )
@@ -22,6 +23,8 @@ type Article struct {
 	Id       uuid.UUID `json:"id"`
 	AuthorId uuid.UUID `json:"author_id"`
 
+	Author User `json:"author,omitempty"`
+
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 
@@ -37,4 +40,19 @@ type Article struct {
 	ViewsCount    int `json:"views_count"`
 	CommentsCount int `json:"comments_count"`
 	BookmarkCount int `json:"bookmark_count"`
+}
+
+const ArticleStatusValidationField = "article_status"
+
+func ArticleStatusValidator(fl validator.FieldLevel) bool {
+	value := fl.Field().String()
+
+	switch value {
+	case
+		string(ArticlePublishedStatus),
+		string(ArticleDraftStatus):
+		return true
+	}
+
+	return true
 }
