@@ -24,28 +24,21 @@ func (s Article) Create(user *entity.User, rawArticle *dto.CreateArticleRequestD
 	const op = "service.Article.Create"
 
 	newArticle := entity.Article{
-		Id:       uuid.New(),
-		AuthorId: user.Id,
+		Id:         uuid.New(),
+		AuthorId:   user.Id,
+		SubsSiteId: rawArticle.SubsSiteId,
 
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
 
 		Status: entity.ArticleStatus(rawArticle.Status),
 
-		Title:      rawArticle.Title,
-		SubsSiteId: rawArticle.SubsSiteId,
-
-		/*
-			TODO:
-				ContentBlocks
-				CoverUrl
-				SubTitle
-		*/
+		Title:       rawArticle.Title,
+		Content:     rawArticle.Content,
+		Description: rawArticle.Description,
 
 		ViewsCount: 0,
 	}
-
-	// fill cover url and subtitle
 
 	err := s.articleRepo.Create(&newArticle)
 	if err != nil {

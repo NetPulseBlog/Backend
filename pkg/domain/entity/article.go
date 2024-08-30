@@ -20,8 +20,9 @@ const (
 )
 
 type Article struct {
-	Id       uuid.UUID `json:"id"`
-	AuthorId uuid.UUID `json:"author_id"`
+	Id         uuid.UUID `json:"id"`
+	AuthorId   uuid.UUID `json:"author_id"`
+	SubsSiteId uuid.UUID `json:"subs_site_id,omitempty"`
 
 	Author User `json:"author,omitempty"`
 
@@ -30,12 +31,10 @@ type Article struct {
 
 	Status ArticleStatus `json:"status"`
 
-	Title      string    `json:"title"`
-	SubsSiteId uuid.UUID `json:"subs_site_id,omitempty"`
-
-	ContentBlocks string `json:"content_blocks"`
-	CoverUrl      string `json:"cover_url"`
-	SubTitle      string `json:"sub_title"`
+	Title       string `json:"title"`
+	Content     string `json:"content"`
+	CoverUrl    string `json:"cover_url"`
+	Description string `json:"description"`
 
 	ViewsCount    int `json:"views_count"`
 	CommentsCount int `json:"comments_count"`

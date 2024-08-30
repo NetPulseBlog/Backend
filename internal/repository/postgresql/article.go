@@ -17,7 +17,46 @@ func NewArticleRepo(db *sql.DB) *ArticleRepo {
 }
 
 func (repo ArticleRepo) Create(article *entity.Article) error {
-	panic("IMPLEMENT ME")
+	const op = "postgresql.Article.Create"
+
+	createArticleStmt, err := repo.db.Prepare(
+		`INSERT INTO "article" (
+			 id, 
+			 author_id, 
+			 sub_site_id,
+                       
+			 created_at,
+			 updated_at,
+			 status,
+			 title,
+			 content,
+			 cover_url,
+			 description,
+			 views_count
+		 ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+	)
+	if err != nil {
+		return ers.ThrowMessage(op, err)
+	}
+
+	_, err = createArticleStmt.Exec(
+		article.Id,
+		article.AuthorId,
+		article.SubsSiteId,
+		article.CreatedAt,
+		article.UpdatedAt,
+		article.Status,
+		article.Title,
+		article.Content,
+		article.CoverUrl,
+		article.Description,
+		0,
+	)
+	if err != nil {
+		return ers.ThrowMessage(op, err)
+	}
+
+	return nil
 }
 
 func (repo ArticleRepo) Update(article *entity.Article) error {
@@ -43,6 +82,7 @@ func (repo ArticleRepo) Delete(articleId string) error {
 }
 
 func (repo ArticleRepo) GetById(articleId string) (*entity.Article, error) {
+	// todo: update view count
 	panic("IMPLEMENT ME")
 }
 

@@ -77,22 +77,22 @@ CREATE TYPE article_status as ENUM ('published', 'draft');
 
 CREATE TABLE "article"
 (
-    "id"             uuid              NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
-    "author_id"      uuid              NOT NULL,
+    "id"          uuid              NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
+    "author_id"   uuid              NOT NULL,
 
-    "status"         article_status    NOT NULL             DEFAULT 'draft',
+    "status"      article_status    NOT NULL             DEFAULT 'draft',
 
-    "created_at"     TIMESTAMP         NOT NULL             DEFAULT now(),
-    "updated_at"     TIMESTAMP                              DEFAULT now(),
+    "created_at"  TIMESTAMP         NOT NULL             DEFAULT now(),
+    "updated_at"  TIMESTAMP                              DEFAULT now(),
 
-    "title"          character varying NOT NULL,
-    "sub_site_id"    uuid,
+    "title"       character varying NOT NULL,
+    "sub_site_id" uuid,
 
-    "content_blocks" jsonb             NOT NULL             DEFAULT '{}',
-    "cover_url"      character varying,
-    "sub_title"      character varying,
+    "content"     character varying NOT NULL,
+    "cover_url"   character varying,
+    "description" character varying,
 
-    "views_count"    int               NOT NULL             DEFAULT 0,
+    "views_count" int               NOT NULL             DEFAULT 0,
 
     FOREIGN KEY ("author_id") REFERENCES "user" ("id") ON DELETE CASCADE,
     FOREIGN KEY ("sub_site_id") REFERENCES "user" ("id") ON DELETE CASCADE

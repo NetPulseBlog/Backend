@@ -15,12 +15,64 @@ import (
 	"net/http"
 )
 
-func (h *Handler) CreateDraftArticle(w http.ResponseWriter, r *http.Request) {
-	// Логика создания черновика
-	w.Write([]byte("Черновик статьи создан"))
+func (h *Handler) CreateArticle(w http.ResponseWriter, r *http.Request) {
+	const op = "http.v1.Article.CreateArticle"
+
+	log := h.log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	var reqBody *dto.CreateArticleRequestDTO
+	err := render.DecodeJSON(r.Body, &reqBody)
+	if err != nil {
+		log.Error("Failed to parse request body", sl.Err(err))
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, response.Error(response.ErrBadRequest))
+		return
+	}
+
+	validate := validator.New()
+	validate.RegisterValidation(entity.ArticleStatusValidationField, entity.ArticleStatusValidator)
+	if err := validate.Struct(reqBody); err != nil {
+		var validateErr validator.ValidationErrors
+		errors.As(err, &validateErr)
+
+		log.Error("Invalid request", sl.Err(err))
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, response.ValidationError(validateErr))
+		return
+	}
+
+	authId, err := request.GetAuthId(r) // todo: move to global context
+	if err != nil {
+		log.Error("Request failed:", sl.Err(err))
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, response.Error(response.ErrInternalServerError))
+		return
+	}
+
+	u, err := h.services.User.GetUserByAuthId(authId)
+	if err != nil {
+		log.Error("Request failed:", sl.Err(err))
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, response.Error(response.ErrInternalServerError))
+		return
+	}
+
+	err = h.services.Article.Create(u, reqBody)
+	if err != nil {
+		log.Error("Request failed:", sl.Err(err))
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, response.Error(response.ErrBadRequest))
+		return
+	}
+
+	render.Status(r, http.StatusCreated)
+	render.JSON(w, r, response.OK())
 }
 
-func (h *Handler) PublishArticle(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) ChangeArticleStatus(w http.ResponseWriter, r *http.Request) {
 	// Логика публикации статьи
 	w.Write([]byte("Статья опубликована"))
 }
