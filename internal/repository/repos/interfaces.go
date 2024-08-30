@@ -9,6 +9,22 @@ type Repositories struct {
 	Auth     IAuthRepo
 	User     IUserRepo
 	Bookmark IBookmarkRepo
+	Article  IArticleRepo
+}
+
+type IArticleRepo interface {
+	Create(article *entity.Article) error
+	Update(article *entity.Article) error
+	Delete(articleId string) error
+
+	GetById(articleId string) (*entity.Article, error)
+	GetList(listType string) (*[]entity.Article, error)
+	ChangeStatus(articleId string) error
+
+	CreateComment(comment *entity.ArticleComment) error
+	GetCommentList(articleId string) (*[]entity.ArticleComment, error)
+	UpdateComment(comment *entity.ArticleComment) error
+	DeleteComment(commentId string) error
 }
 
 type IAuthRepo interface {
@@ -35,7 +51,7 @@ type IUserRepo interface {
 }
 
 type IBookmarkRepo interface {
-	GetListByResourceType(resourceType entity.BookmarkResourceType) (*[]interface{}, error)
+	GetListByResourceType(userId uuid.UUID, resourceType entity.BookmarkResourceType) (*[]interface{}, error)
 	Delete(id uuid.UUID) error
 	Create(bookmark entity.UserBookmark) error
 }

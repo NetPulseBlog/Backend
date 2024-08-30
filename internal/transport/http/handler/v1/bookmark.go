@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"app/pkg/api/request"
 	"app/pkg/api/response"
 	"app/pkg/domain/entity"
 	"app/pkg/infra/logger/sl"
@@ -25,7 +26,23 @@ func (h *Handler) ListBookmarks(w http.ResponseWriter, r *http.Request) {
 		resourceType = string(entity.BTArticle)
 	}
 
-	list, err := h.services.Bookmark.GetList(entity.BookmarkResourceType(resourceType))
+	authId, err := request.GetAuthId(r) // todo: move to global context
+	if err != nil {
+		log.Error("Request failed:", sl.Err(err))
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, response.Error(response.ErrInternalServerError))
+		return
+	}
+
+	u, err := h.services.User.GetUserByAuthId(authId)
+	if err != nil {
+		log.Error("Request failed:", sl.Err(err))
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, response.Error(response.ErrInternalServerError))
+		return
+	}
+
+	list, err := h.services.Bookmark.GetList(u.Id, entity.BookmarkResourceType(resourceType))
 	if err != nil {
 		log.Error("Request failed:", sl.Err(err))
 		render.JSON(w, r, response.Error(response.ErrInternalServerError))
@@ -46,9 +63,15 @@ func (h *Handler) CreateBookmark(w http.ResponseWriter, r *http.Request) {
 
 	id := chi.URLParam(r, "resource_id")
 	resourceType := chi.URLParam(r, "resource_type")
-	authId, _ := r.Cookie(entity.AuthIdFieldName) // TODO: get user id from context
+	authId, err := request.GetAuthId(r) // TODO: get user id from context
+	if err != nil {
+		log.Error("Request failed:", sl.Err(err))
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, response.Error(response.ErrInternalServerError))
+		return
+	}
 
-	err := h.services.Bookmark.Create(authId.Value, id, entity.BookmarkResourceType(resourceType))
+	err = h.services.Bookmark.Create(authId, id, entity.BookmarkResourceType(resourceType))
 	if err != nil {
 		log.Error("Request failed:", sl.Err(err))
 		render.JSON(w, r, response.Error(response.ErrInternalServerError))

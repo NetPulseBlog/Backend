@@ -10,5 +10,6 @@ func NewPostgresqlRepositories(db *sql.DB) *repos.Repositories {
 		Auth:     NewAuthRepo(db),
 		User:     NewUserRepo(db),
 		Bookmark: NewBookmarkRepo(db),
+		Article:  NewArticleRepo(db),
 	}
 }

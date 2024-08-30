@@ -9,13 +9,11 @@
    - [x] Getting a list of subsite categories
    - [ ] Request to change/confirm password
 - [ ] Article
-   - [ ] Create immediately
-   - [ ] Create as a draft
-   - [ ] Publication
+   - [ ] Create immediately/as a draft
+   - [ ] Change status – Publication/Switch to draft
    - [ ] List
+   - [ ] Delete
    - [ ] Receiving by ID
-   - [ ] Subscription
-   - [ ] Unsubscribe
    - [ ] Editing
    - [ ] Comments
       - [ ] Receipt

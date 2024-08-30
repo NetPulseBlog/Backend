@@ -53,35 +53,35 @@ func (h *Handler) InitRouter() http.Handler {
 	})
 
 	v1.Route("/article", func(r chi.Router) {
-		r.With(authGuard).Post("/draft", h.CreateDraftArticle) // POST /article/draft
-		r.With(authGuard).Post("/publish", h.PublishArticle)   // POST /article/publish
+		r.With(authGuard).Post("/", h.CreateArticle)
 
 		r.Route("/list", func(r chi.Router) {
-			r.Get("/", h.ListArticles)                     // GET /article/list?filter=popular, fresh or my
-			r.With(authGuard).Get("/my", h.ListMyArticles) // GET /article/list/my
+			r.Get("/{type}", h.ListArticles)
+			r.With(authGuard).Get("/drafts", h.DraftListArticles)
 		})
 
 		r.Route("/{id}", func(r chi.Router) {
-			r.Get("/", h.GetArticleByID)                                     // GET /article/{id}
-			r.With(authGuard).Post("/subscribe", h.SubscribeToArticle)       // POST /article/{id}/subscribe
-			r.With(authGuard).Post("/unsubscribe", h.UnsubscribeFromArticle) // POST /article/{id}/unsubscribe
-			r.With(authGuard).Put("/", h.EditArticle)                        // PUT /article/{id}
-			r.With(authGuard).Post("/publish", h.PublishArticle)             // POST /article/{id}/publish
+			r.Get("/", h.GetArticleByID)
+			r.Delete("/", h.DeleteArticle)
+			r.With(authGuard).Post("/subscribe", h.SubscribeToArticle)
+			r.With(authGuard).Post("/unsubscribe", h.UnsubscribeFromArticle)
+			r.With(authGuard).Put("/", h.EditArticle)
+			r.With(authGuard).Post("/change-status", h.ChangeArticleStatus)
 			r.Route("/comment", func(r chi.Router) {
-				r.Get("/", h.GetCommentsForArticle)                   // GET /article/{id}/comment
-				r.With(authGuard).Post("/", h.CreateCommentOnArticle) // POST /article/{id}/comment
+				r.Get("/", h.GetCommentsForArticle)
+				r.With(authGuard).Post("/", h.CreateCommentOnArticle)
 				r.With(authGuard).Route("/{commentId}", func(r chi.Router) {
-					r.Delete("/", h.DeleteCommentFromArticle) // DELETE /article/{id}/comment/{commentId}
-					r.Put("/", h.EditCommentOnArticle)        // PUT /article/{id}/comment/{commentId}
+					r.Delete("/", h.DeleteCommentFromArticle)
+					r.Put("/", h.EditCommentOnArticle)
 				})
 			})
 		})
 	})
 
 	v1.With(authGuard).Route("/bookmark", func(r chi.Router) {
-		r.Get("/list", h.ListBookmarks)                            // GET /bookmark/list
-		r.Post("/{resource_id}/{resource_type}", h.CreateBookmark) // POST /bookmark/{resource_id}/{resource_type} // for found type see domain/user_bookmark.go
-		r.Delete("/{resource_id}", h.DeleteBookmark)               // DELETE /bookmark/{resource_id}
+		r.Get("/list", h.ListBookmarks)
+		r.Post("/{resource_id}/{resource_type}", h.CreateBookmark)
+		r.Delete("/{resource_id}", h.DeleteBookmark)
 	})
 
 	return v1
