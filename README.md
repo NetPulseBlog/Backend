@@ -9,7 +9,7 @@
    - [x] Getting a list of subsite categories
    - [ ] Request to change/confirm password
 - [ ] Article
-   - [ ] Create immediately/as a draft
+   - [x] Create immediately/as a draft
    - [ ] Change status – Publication/Switch to draft
    - [ ] List
    - [ ] Delete
