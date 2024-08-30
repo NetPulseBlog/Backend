@@ -12,7 +12,7 @@
    - [x] Create immediately/as a draft
    - [ ] Change status – Publication/Switch to draft
    - [ ] List
-   - [ ] Delete
+   - [x] Delete
    - [ ] Receiving by ID
    - [ ] Editing
    - [ ] Comments
